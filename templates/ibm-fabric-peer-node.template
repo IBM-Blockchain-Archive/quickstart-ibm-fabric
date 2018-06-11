@@ -1,0 +1,418 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This template creates a single IBM Blockchain Peer in an existing VPC infrastructure.  **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
+    "Metadata": {
+        "AWS::CloudFormation::Interface": {
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": "Network Configuration"
+                    },
+                    "Parameters": [
+                        "VPCID",
+                        "AvailabilityZone",
+                        "SubnetID"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "Amazon EC2 Configuration"
+                    },
+                    "Parameters": [
+                        "InstanceType",
+                        "KeyPairName",
+                        "SecurityGroup"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "IBM Blockchain Configuration"
+                    },
+                    "Parameters": [
+                        "IBMBlockchainVersion",
+                        "StateDatabase",
+                        "PeerVolumeSize",
+                        "EnrollID",
+                        "EnrollSecret",
+                        "APIEndpoint",
+                        "APIKey",
+                        "APISecret",
+                        "NetworkID"
+                    ]
+                }
+            ]
+        }
+    },
+    "Parameters": {
+        "IBMBlockchainVersion": {
+            "Description": "IBM Blockchain version to deploy",
+            "Type": "String",
+            "AllowedValues": [
+                "1.1.0"
+            ],
+            "Default": "1.1.0"
+        },
+        "APIEndpoint": {
+            "Description": "The url from the IBM Blockchain network credentials",
+            "Type": "String",
+            "AllowedPattern": "^https:\/\/[a-zA-Z0-9-\/.]+$",
+            "ConstraintDescription": "This URL must be a valid https URL"
+        },
+        "APIKey": {
+            "Description": "The key from the IBM Blockchain network credentials",
+            "Type": "String",
+            "AllowedPattern": ".+"
+        },
+        "APISecret": {
+            "Description": "The secret from the IBM Blockchain network credentials",
+            "Type": "String",
+            "AllowedPattern": ".+"
+        },
+        "NetworkID": {
+            "Description": "The network_id from the IBM Blockchain network credentials",
+            "Type": "String",
+            "AllowedPattern": ".+"
+        },
+        "EnrollID": {
+            "Description": "The registered ID the peer will use to enroll",
+            "Type": "String",
+            "AllowedPattern": ".+"
+        },
+        "EnrollSecret": {
+            "Description": "The secret the peer will use to enroll",
+            "Type": "String",
+            "NoEcho": true,
+            "AllowedPattern": ".+"
+        },
+        "StateDatabase": {
+            "Description": "The type of database to use for storing blockchain state",
+            "Type": "String",
+            "AllowedValues": [
+                "leveldb",
+                "couchdb"
+            ],
+            "Default": "couchdb"
+        },
+        "KeyPairName": {
+            "Description": "Name of an existing EC2 key pair within the AWS region",
+            "Type": "AWS::EC2::KeyPair::KeyName"
+        },
+        "SecurityGroup": {
+            "Description": "ID of an existing EC2 security group within the AWS region; should allow ingress on ports 22, 7051 and optionally 7053",
+            "Type": "AWS::EC2::SecurityGroup::Id"
+        },
+        "InstanceType": {
+            "AllowedValues": [
+                "t2.medium",
+                "t2.large",
+                "t2.xlarge",
+                "t2.2xlarge",
+                "m4.large",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "m4.10xlarge",
+                "m4.16xlarge",
+                "m5.large",
+                "m5.xlarge",
+                "m5.2xlarge",
+                "m5.4xlarge",
+                "m5.12xlarge",
+                "m5.24xlarge",
+                "c4.large",
+                "c4.xlarge",
+                "c4.2xlarge",
+                "c4.4xlarge",
+                "c4.8xlarge",
+                "c5.large",
+                "c5.xlarge",
+                "c5.2xlarge",
+                "c5.4xlarge",
+                "c5.9xlarge",
+                "c5.18xlarge",
+                "x1.16xlarge",
+                "x1.xlarge",
+                "x1e.xlarge",
+                "x1e.2xlarge",
+                "x1e.4xlarge",
+                "x1e.8xlarge",
+                "x1e.16xlarge",
+                "x1e.32xlarge",
+                "i3.large",
+                "i3.xlarge",
+                "i3.2xlarge",
+                "i3.4xlarge",
+                "i3.8xlarge",
+                "i3.16xlarge",
+                "i3.metal"
+            ],
+            "ConstraintDescription": "Must contain valid instance type",
+            "Default": "m4.xlarge",
+            "Description": "Type of EC2 instance for the Workload instances",
+            "Type": "String"
+        },
+        "VPCID": {
+            "Description": "ID of your existing VPC for deployment",
+            "Type": "AWS::EC2::VPC::Id"
+        },
+        "AvailabilityZone": {
+            "Description": "The Availability Zones in which to deploy the peer node",
+            "Type": "AWS::EC2::AvailabilityZone::Name"
+        },
+        "SubnetID": {
+            "Description": "ID of the subnet to use for the Peer",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "PeerVolumeSize": {
+            "Type": "Number",
+            "Description": "Size of the EBS Volume Size used to store persistent data (ledger, state database, MSP) for the peer in GBs ",
+            "Default": 100
+        }
+    },
+    "Rules": {
+        "KeyPairsNotEmpty": {
+            "Assertions": [
+                {
+                    "Assert": {
+                        "Fn::Not": [
+                            {
+                                "Fn::EachMemberEquals": [
+                                    {
+                                        "Fn::RefAll": "AWS::EC2::KeyPair::KeyName"
+                                    },
+                                    ""
+                                ]
+                            }
+                        ]
+                    },
+                    "AssertDescription": "All key pair parameters must not be empty"
+                }
+            ]
+        },
+        "SubnetInVPC": {
+            "Assertions": [
+                {
+                    "Assert": {
+                        "Fn::Equals": [
+                            {
+                                "Fn::ValueOf": [
+                                    "SubnetID",
+                                    "VpcId"
+                                ]
+                            },
+                            {
+                                "Ref": "VPCID"
+                            }
+                        ]
+                    },
+                    "AssertDescription": "Subnet must be in the VPC"
+                }
+            ]
+        }
+    },
+    "Mappings": {
+        "AWSAMIRegionMap": {
+            "AMI": {
+                "AMZNECSOPTIMIZED": "amzn-ami-2018.03.a-amazon-ecs-optimized"
+            },
+            "us-east-2": {
+                "AMZNECSOPTIMIZED": "ami-956e52f0"
+            },
+            "us-east-1": {
+                "AMZNECSOPTIMIZED": "ami-5253c32d"
+            },
+            "us-west-2": {
+                "AMZNECSOPTIMIZED": "ami-d2f489aa"
+            },
+            "us-west-1": {
+                "AMZNECSOPTIMIZED": "ami-6b81980b"
+            },
+            "eu-west-3": {
+                "AMZNECSOPTIMIZED": "ami-ca75c4b7"
+            },
+            "eu-west-2": {
+                "AMZNECSOPTIMIZED": "ami-3622cf51"
+            },
+            "eu-west-1": {
+                "AMZNECSOPTIMIZED": "ami-c91624b0"
+            },
+            "eu-central-1": {
+                "AMZNECSOPTIMIZED": "ami-10e6c8fb"
+            },
+            "ap-northeast-2": {
+                "AMZNECSOPTIMIZED": "ami-7c69c112"
+            },
+            "ap-northeast-1": {
+                "AMZNECSOPTIMIZED": "ami-f3f8098c"
+            },
+            "ap-southeast-2": {
+                "AMZNECSOPTIMIZED": "ami-bc04d5de"
+            },
+            "ap-southeast-1": {
+                "AMZNECSOPTIMIZED": "ami-b75a6acb"
+            },
+            "ca-central-1": {
+                "AMZNECSOPTIMIZED": "ami-da6cecbe"
+            },
+            "ap-south-1": {
+                "AMZNECSOPTIMIZED": "ami-c7072aa8"
+            },
+            "sa-east-1": {
+                "AMZNECSOPTIMIZED": "ami-a1e2becd"
+            }
+        }
+    },
+    "Resources": {
+        "PeerStorageVolume": {
+            "Type": "AWS::EC2::Volume",
+            "Properties": {
+                "AvailabilityZone": {
+                    "Ref": "AvailabilityZone"
+                },
+                "Size": {
+                    "Ref": "PeerVolumeSize"
+                },
+                "VolumeType": "gp2"
+            }
+        },
+        "IBMBlockchainPeer": {
+            "Type": "AWS::EC2::Instance",
+            "DependsOn": [
+                "PeerStorageVolume"
+            ],
+            "Metadata": {
+                "AWS::CloudFormation::Init": {
+                    "configSets": {
+                        "Install": [
+                            "aws-cli",
+                            "ibmblockchain-images"
+                        ]
+                    },
+                    "aws-cli": {
+                        "packages": {
+                            "yum": {
+                                "aws-cli": []
+                            }
+                        }
+                    },
+                    "ibmblockchain-images": {
+                        "commands": {
+                            "baseimage": {
+                                "command": "docker pull ibmblockchain/fabric-baseimage:0.4.6"
+                            },
+                            "baseos": {
+                                "command": "docker pull ibmblockchain/fabric-baseos:0.4.6"
+                            },
+                            "couchdb": {
+                                "command": "docker pull ibmblockchain/fabric-couchdb:0.4.6"
+                            },
+                            "peer": {
+                                "command": {
+                                    "Fn::Join": [
+                                        ":",
+                                        [
+                                            "docker pull ibmblockchain/fabric-peer",
+                                            {
+                                                "Ref": "IBMBlockchainVersion"
+                                            }
+                                        ]
+                                    ]
+                                }
+                            },
+                            "ccenv": {
+                                "command": {
+                                    "Fn::Join": [
+                                        ":",
+                                        [
+                                            "docker pull ibmblockchain/fabric-ccenv",
+                                            {
+                                                "Ref": "IBMBlockchainVersion"
+                                            }
+                                        ]
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "Properties": {
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "AWSAMIRegionMap",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "AMZNECSOPTIMIZED"
+                    ]
+                },
+                "InstanceType": {
+                    "Ref": "InstanceType"
+                },
+                "Volumes": [
+                    {
+                        "VolumeId": {
+                            "Ref": "PeerStorageVolume"
+                        },
+                        "Device": "/dev/xvdl"
+                    }
+                ],
+                "KeyName": {
+                    "Ref": "KeyPairName"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "SecurityGroup"
+                    }
+                ],
+                "AvailabilityZone": {
+                    "Ref": "AvailabilityZone"
+                },
+                "SubnetId": {
+                    "Ref": "SubnetID"
+                },
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash -xe\n",
+                                "yum install -y aws-cfn-bootstrap\n",
+                                "# Install the files and packages from the metadata\n",
+                                "/opt/aws/bin/cfn-init -v ",
+                                "         --stack ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "         --resource IBMBlockchainPeer ",
+                                "         --configsets Install ",
+                                "         --region ",
+                                {
+                                    "Ref": "AWS::Region"
+                                },
+                                "\n",
+                                "# Signal the status from cfn-init\n",
+                                "/opt/aws/bin/cfn-signal -e $? ",
+                                "         --stack ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "         --resource IBMBlockchainPeer ",
+                                "         --region ",
+                                {
+                                    "Ref": "AWS::Region"
+                                },
+                                "\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "CreationPolicy": {
+                "ResourceSignal": {
+                    "Timeout": "PT5M"
+                }
+            }
+        }
+    }
+}

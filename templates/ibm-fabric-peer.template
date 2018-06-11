@@ -1,0 +1,308 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "This template creates two IBM Blockchain Peers in an existing VPC infrastructure.  **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
+	"Metadata": {
+		"AWS::CloudFormation::Interface": {
+			"ParameterGroups": [
+				{
+					"Label": {
+						"default": "Network Configuration"
+					},
+					"Parameters": [
+						"VPCID",
+						"AvailabilityZone1",
+						"SubnetID1",
+						"AvailabilityZone2",
+						"SubnetID2"
+					]
+				},
+				{
+					"Label": {
+						"default": "Amazon EC2 Configuration"
+					},
+					"Parameters": [
+						"InstanceType",
+						"KeyPairName",
+						"SecurityGroup"
+					]
+				},
+				{
+					"Label": {
+						"default": "IBM Blockchain Configuration"
+					},
+					"Parameters": [
+						"IBMBlockchainVersion",
+						"StateDatabase",
+						"PeerVolumeSize",
+						"EnrollID",
+						"EnrollSecret",
+						"APIEndpoint",
+						"APIKey",
+						"APISecret",
+						"NetworkID"
+					]
+				}
+			]
+		}
+	},
+	"Parameters": {
+		"VPCID": {
+			"Description": "ID of your existing VPC for deployment",
+			"Type": "AWS::EC2::VPC::Id"
+		},
+		"AvailabilityZone1": {
+			"Description": "The Availability Zone in which to deploy the first peer node",
+			"Type": "AWS::EC2::AvailabilityZone::Name"
+		},
+		"SubnetID1": {
+			"Description": "ID of the subnet to use for the first peer node",
+			"Type": "AWS::EC2::Subnet::Id"
+		},
+		"AvailabilityZone2": {
+			"Description": "The Availability Zone in which to deploy the second peer node",
+			"Type": "AWS::EC2::AvailabilityZone::Name"
+		},
+		"SubnetID2": {
+			"Description": "ID of the subnet to use for the second peer node",
+			"Type": "AWS::EC2::Subnet::Id"
+		},
+		"KeyPairName": {
+			"Description": "Name of an existing EC2 key pair within the AWS region",
+			"Type": "AWS::EC2::KeyPair::KeyName"
+		},
+		"SecurityGroup": {
+			"Description": "ID of an existing EC2 security group within the AWS region; should allow ingress on ports 22, 7051 and optionally 7053",
+			"Type": "AWS::EC2::SecurityGroup::Id"
+		},
+		"InstanceType": {
+			"AllowedValues": [
+				"t2.medium",
+				"t2.large",
+				"t2.xlarge",
+				"t2.2xlarge",
+				"m4.large",
+				"m4.xlarge",
+				"m4.2xlarge",
+				"m4.4xlarge",
+				"m4.10xlarge",
+				"m4.16xlarge",
+				"m5.large",
+				"m5.xlarge",
+				"m5.2xlarge",
+				"m5.4xlarge",
+				"m5.12xlarge",
+				"m5.24xlarge",
+				"c4.large",
+				"c4.xlarge",
+				"c4.2xlarge",
+				"c4.4xlarge",
+				"c4.8xlarge",
+				"c5.large",
+				"c5.xlarge",
+				"c5.2xlarge",
+				"c5.4xlarge",
+				"c5.9xlarge",
+				"c5.18xlarge",
+				"x1.16xlarge",
+				"x1.xlarge",
+				"x1e.xlarge",
+				"x1e.2xlarge",
+				"x1e.4xlarge",
+				"x1e.8xlarge",
+				"x1e.16xlarge",
+				"x1e.32xlarge",
+				"i3.large",
+				"i3.xlarge",
+				"i3.2xlarge",
+				"i3.4xlarge",
+				"i3.8xlarge",
+				"i3.16xlarge",
+				"i3.metal"
+			],
+			"ConstraintDescription": "Must contain valid instance type",
+			"Default": "m4.xlarge",
+			"Description": "Type of EC2 instance for the Workload instances",
+			"Type": "String"
+		},
+		"PeerVolumeSize": {
+			"Type": "Number",
+			"Description": "Size of the EBS Volume Size used to store persistent data (ledger, state database, MSP) for the peer in GBs ",
+			"Default": 100
+		},
+		"IBMBlockchainVersion": {
+			"Description": "IBM Blockchain version to deploy",
+			"Type": "String",
+			"AllowedValues": [
+				"1.1.0"
+			],
+			"Default": "1.1.0"
+		},
+		"APIEndpoint": {
+			"Description": "The url from the IBM Blockchain network credentials",
+			"Type": "String",
+			"AllowedPattern": "^https:\/\/[a-zA-Z0-9-\/.]+$",
+			"ConstraintDescription": "This URL must be a valid https URL"
+		},
+		"APIKey": {
+			"Description": "The key from the IBM Blockchain network credentials",
+			"Type": "String",
+			"AllowedPattern": ".+"
+		},
+		"APISecret": {
+			"Description": "The secret from the IBM Blockchain network credentials",
+			"Type": "String",
+			"AllowedPattern": ".+"
+		},
+		"NetworkID": {
+			"Description": "The network_id from the IBM Blockchain network credentials",
+			"Type": "String",
+			"AllowedPattern": ".+"
+		},
+		"EnrollID": {
+			"Description": "The registered ID the peer will use to enroll",
+			"Type": "String",
+			"AllowedPattern": ".+"
+		},
+		"EnrollSecret": {
+			"Description": "The secret the peer will use to enroll",
+			"Type": "String",
+			"NoEcho": true,
+			"AllowedPattern": ".+"
+		},
+		"StateDatabase": {
+			"Description": "The type of database to use for storing blockchain state",
+			"Type": "String",
+			"AllowedValues": [
+				"leveldb",
+				"couchdb"
+			],
+			"Default": "couchdb"
+		},
+		"QSS3BucketName": {
+			"AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
+			"ConstraintDescription": "Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
+			"Default": "aws-quickstart",
+			"Description": "S3 bucket name for the Quick Start assets. Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
+			"Type": "String"
+		},
+		"QSS3KeyPrefix": {
+			"AllowedPattern": "^[0-9a-zA-Z-/]*$",
+			"ConstraintDescription": "Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
+			"Default": "quickstart-ibm-fabric/",
+			"Description": "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
+			"Type": "String"
+		}
+	},
+	"Resources": {
+		"Peer1Stack": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": {
+					"Fn::Sub": "https://${QSS3BucketName}.amazonaws.com/${QSS3KeyPrefix}templates/ibm-fabric-peer-node.template"
+				},
+				"Parameters": {
+					"VPCID": {
+						"Ref": "VPCID"
+					},
+					"InstanceType": {
+						"Ref": "InstanceType"
+					},
+					"PeerVolumeSize": {
+						"Ref": "PeerVolumeSize"
+					},
+					"KeyPairName": {
+						"Ref": "KeyPairName"
+					},
+					"SecurityGroup": {
+						"Ref": "SecurityGroup"
+					},
+					"SubnetID": {
+						"Ref": "SubnetID1"
+					},
+					"AvailabilityZone": {
+						"Ref": "AvailabilityZone1"
+					},
+					"IBMBlockchainVersion": {
+						"Ref": "IBMBlockchainVersion"
+					},
+					"APIEndpoint": {
+						"Ref": "APIEndpoint"
+					},
+					"APIKey": {
+						"Ref": "APIKey"
+					},
+					"APISecret": {
+						"Ref": "APISecret"
+					},
+					"NetworkID": {
+						"Ref": "NetworkID"
+					},
+					"EnrollID": {
+						"Ref": "EnrollID"
+					},
+					"EnrollSecret": {
+						"Ref": "EnrollSecret"
+					},
+					"StateDatabase": {
+						"Ref": "StateDatabase"
+					}
+				}
+			}
+		},
+		"Peer2Stack": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": {
+					"Fn::Sub": "https://${QSS3BucketName}.amazonaws.com/${QSS3KeyPrefix}templates/ibm-fabric-peer-node.template"
+				},
+				"Parameters": {
+					"VPCID": {
+						"Ref": "VPCID"
+					},
+					"InstanceType": {
+						"Ref": "InstanceType"
+					},
+					"PeerVolumeSize": {
+						"Ref": "PeerVolumeSize"
+					},
+					"KeyPairName": {
+						"Ref": "KeyPairName"
+					},
+					"SecurityGroup": {
+						"Ref": "SecurityGroup"
+					},
+					"SubnetID": {
+						"Ref": "SubnetID2"
+					},
+					"AvailabilityZone": {
+						"Ref": "AvailabilityZone2"
+					},
+					"IBMBlockchainVersion": {
+						"Ref": "IBMBlockchainVersion"
+					},
+					"APIEndpoint": {
+						"Ref": "APIEndpoint"
+					},
+					"APIKey": {
+						"Ref": "APIKey"
+					},
+					"APISecret": {
+						"Ref": "APISecret"
+					},
+					"NetworkID": {
+						"Ref": "NetworkID"
+					},
+					"EnrollID": {
+						"Ref": "EnrollID"
+					},
+					"EnrollSecret": {
+						"Ref": "EnrollSecret"
+					},
+					"StateDatabase": {
+						"Ref": "StateDatabase"
+					}
+				}
+			}
+		}
+	}
+}

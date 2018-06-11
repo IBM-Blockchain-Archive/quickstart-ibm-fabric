@@ -1,0 +1,217 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This template creates a new VPC infrastructure for for a high availability IBM Blockchain Peer installation.   **WARNING** This template creates Amazon EC2 instance and related resources. You will be billed for the AWS resources used if you create a stack from this template.",
+    "Metadata": {
+        "AWS::CloudFormation::Interface": {
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": "Network Configuration"
+                    },
+                    "Parameters": [
+                        "AvailabilityZones"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "Amazon EC2 Configuration"
+                    },
+                    "Parameters": [
+                        "InstanceType",
+                        "KeyPairName"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "IBM Blockchain Configuration"
+                    },
+                    "Parameters": [
+                        "IBMBlockchainVersion",
+                        "StateDatabase",
+                        "EnrollID",
+                        "EnrollSecret",
+                        "APIEndpoint",
+                        "APIKey",
+                        "APISecret",
+                        "NetworkID"
+                    ]
+                }
+            ]
+        }
+    },
+    "Parameters": {
+        "AvailabilityZones": {
+            "Description": "The two Availability Zones to use for the subnets in the VPC. Note: The logical order is preserved.",
+            "Type": "List<AWS::EC2::AvailabilityZone::Name>"
+        },
+        "QSS3BucketName": {
+            "AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
+            "ConstraintDescription": "Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
+            "Default": "aws-quickstart",
+            "Description": "S3 bucket name for the Quick Start assets. Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
+            "Type": "String"
+        },
+        "QSS3KeyPrefix": {
+            "AllowedPattern": "^[0-9a-zA-Z-/]*$",
+            "ConstraintDescription": "Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
+            "Default": "quickstart-ibm-fabric/",
+            "Description": "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
+            "Type": "String"
+        },
+        "IBMBlockchainVersion": {
+            "Description": "IBM Blockchain version to deploy",
+            "Type": "String",
+            "AllowedValues": [
+                "1.1.0"
+            ],
+            "Default": "1.1.0"
+        },
+        "APIEndpoint": {
+            "Description": "The url from the IBM Blockchain network credentials",
+            "Type": "String",
+            "AllowedPattern": "^https:\/\/[a-zA-Z0-9-\/.]+$",
+            "ConstraintDescription": "This URL must be a valid https URL"
+        },
+        "APIKey": {
+            "Description": "The key from the IBM Blockchain network credentials",
+            "Type": "String",
+            "AllowedPattern": ".+"
+        },
+        "APISecret": {
+            "Description": "The secret from the IBM Blockchain network credentials",
+            "Type": "String",
+            "AllowedPattern": ".+"
+        },
+        "NetworkID": {
+            "Description": "The network_id from the IBM Blockchain network credentials",
+            "Type": "String",
+            "AllowedPattern": ".+"
+        },
+        "EnrollID": {
+            "Description": "The registered ID the peer will use to enroll",
+            "Type": "String",
+            "AllowedPattern": ".+"
+        },
+        "EnrollSecret": {
+            "Description": "The secret the peer will use to enroll",
+            "Type": "String",
+            "NoEcho": true,
+            "AllowedPattern": ".+"
+        },
+        "StateDatabase": {
+            "Description": "The type of database to use for storing blockchain state",
+            "Type": "String",
+            "AllowedValues": [
+                "leveldb",
+                "couchdb"
+            ],
+            "Default": "couchdb"
+        },
+        "KeyPairName": {
+            "Description": "Name of an existing EC2 key pair within the AWS region",
+            "Type": "AWS::EC2::KeyPair::KeyName"
+        },
+        "InstanceType": {
+            "AllowedValues": [
+                "t2.medium",
+                "t2.large",
+                "t2.xlarge",
+                "t2.2xlarge",
+                "m4.large",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "m4.10xlarge",
+                "m4.16xlarge",
+                "m5.large",
+                "m5.xlarge",
+                "m5.2xlarge",
+                "m5.4xlarge",
+                "m5.12xlarge",
+                "m5.24xlarge",
+                "c4.large",
+                "c4.xlarge",
+                "c4.2xlarge",
+                "c4.4xlarge",
+                "c4.8xlarge",
+                "c5.large",
+                "c5.xlarge",
+                "c5.2xlarge",
+                "c5.4xlarge",
+                "c5.9xlarge",
+                "c5.18xlarge",
+                "x1.16xlarge",
+                "x1.xlarge",
+                "x1e.xlarge",
+                "x1e.2xlarge",
+                "x1e.4xlarge",
+                "x1e.8xlarge",
+                "x1e.16xlarge",
+                "x1e.32xlarge",
+                "i3.large",
+                "i3.xlarge",
+                "i3.2xlarge",
+                "i3.4xlarge",
+                "i3.8xlarge",
+                "i3.16xlarge",
+                "i3.metal"
+            ],
+            "ConstraintDescription": "Must contain valid instance type",
+            "Default": "m4.xlarge",
+            "Description": "Type of EC2 instance for the Workload instances",
+            "Type": "String"
+        }
+    },
+    "Resources":{
+        "VPCStack": {
+            "Type": "AWS::CloudFormation::Stack",
+            "Properties": {
+                "TemplateURL": {
+                    "Fn::Sub": "https://${QSS3BucketName}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template"
+                },
+                "Parameters": {
+                    "AvailabilityZones": {
+                        "Fn::Join": [
+                            ",",
+                            {
+                                "Ref": "AvailabilityZones"
+                            }
+                        ]
+                    },
+                    "KeyPairName": {
+                        "Ref": "KeyPairName"
+                    }
+                }
+            }
+        },
+        "Peer1Stack": {
+            "Type": "AWS::CloudFormation::Stack",
+            "DependsOn":"VPCStack",
+            "Properties": {
+                "TemplateURL": {
+                    "Fn::Sub": "https://${QSS3BucketName}.amazonaws.com/${QSS3KeyPrefix}templates/ibm-fabric-peer.template"
+                },
+                "Parameters": {
+                    "InstanceType":{
+
+                    },
+                    "AvailabilityZone":{
+
+                    },
+                    "PeerVolumeSize":{
+
+                    },
+                    "KeyPairName": {
+                        "Ref": "KeyPairName"
+                    },
+                    "SecurityGroup":{
+
+                    },
+                    "SubnetID":{
+
+                    }
+                }
+            }
+        }
+    }
+}
