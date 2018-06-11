@@ -11,6 +11,8 @@ global:
     - ca-central-1
     - eu-central-1
     - eu-west-1
+    - eu-west-2
+    - eu-west-3
     - sa-east-1
     - us-east-1
     - us-east-2
@@ -19,5 +21,5 @@ global:
   reporting: true
 tests:
   ibm-fabrict:
-    parameter_input: ibm-fabric-master.json
-    template_file: ibm-fabric-master.template
+    parameter_input: ibm-fabric-peer-master.json
+    template_file: ibm-fabric-peer-master.template

@@ -9,7 +9,9 @@
                         "default": "Network Configuration"
                     },
                     "Parameters": [
-                        "AvailabilityZones"
+                        "AvailabilityZones",
+                        "RemoteAccessCIDR",
+                        "PeerEndpointAccessCIDR"
                     ]
                 },
                 {
@@ -28,6 +30,7 @@
                     "Parameters": [
                         "IBMBlockchainVersion",
                         "StateDatabase",
+                        "PeerVolumeSize",
                         "EnrollID",
                         "EnrollSecret",
                         "APIEndpoint",
@@ -44,6 +47,18 @@
             "Description": "The two Availability Zones to use for the subnets in the VPC. Note: The logical order is preserved.",
             "Type": "List<AWS::EC2::AvailabilityZone::Name>"
         },
+        "RemoteAccessCIDR": {
+            "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(0|1[6-9]|2[0-8]))$",
+            "ConstraintDescription": "CIDR block parameter must be in the form x.x.x.x/16-28 or 0.0.0.0/0",
+            "Description": "Allowed CIDR block for external SSH access to the IBM Blockchain Peer instances",
+            "Type": "String"
+        },
+        "PeerEndpointAccessCIDR": {
+            "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(0|1[6-9]|2[0-8]))$",
+            "ConstraintDescription": "CIDR block parameter must be in the form x.x.x.x/16-28 or 0.0.0.0/0",
+            "Description": "Allowed CIDR block for external gRPC access to the IBM Blockchain Peer instances",
+            "Type": "String"
+        },
         "QSS3BucketName": {
             "AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
             "ConstraintDescription": "Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
@@ -57,6 +72,11 @@
             "Default": "quickstart-ibm-fabric/",
             "Description": "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
             "Type": "String"
+        },
+        "PeerVolumeSize": {
+            "Type": "Number",
+            "Description": "Size of the EBS Volume Size used to store persistent data (ledger, state database, MSP) for the peer in GBs ",
+            "Default": 100
         },
         "IBMBlockchainVersion": {
             "Description": "IBM Blockchain version to deploy",
@@ -162,7 +182,7 @@
             "Type": "String"
         }
     },
-    "Resources":{
+    "Resources": {
         "VPCStack": {
             "Type": "AWS::CloudFormation::Stack",
             "Properties": {
@@ -184,31 +204,122 @@
                 }
             }
         },
-        "Peer1Stack": {
+        "PeerSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "DependsOn": [
+                "VPCStack"
+            ],
+            "Properties": {
+                "GroupDescription": "Security group for access to IBM Blockchain peers",
+                "VpcId": {
+                    "Fn::GetAtt": [
+                        "VPCStack",
+                        "Outputs.VPCID"
+                    ]
+                },
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": {
+                            "Ref": "RemoteAccessCIDR"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "7051",
+                        "ToPort": "7051",
+                        "CidrIp": {
+                            "Ref": "PeerEndpointAccessCIDR"
+                        }
+                    }
+                ]
+            }
+        },
+        "TwoPeerStack": {
             "Type": "AWS::CloudFormation::Stack",
-            "DependsOn":"VPCStack",
+            "DependsOn": [
+                "VPCStack",
+                "PeerSecurityGroup"
+            ],
             "Properties": {
                 "TemplateURL": {
                     "Fn::Sub": "https://${QSS3BucketName}.amazonaws.com/${QSS3KeyPrefix}templates/ibm-fabric-peer.template"
                 },
                 "Parameters": {
-                    "InstanceType":{
-
+                    "QSS3BucketName": {
+                        "Ref": "QSS3BucketName"
                     },
-                    "AvailabilityZone":{
-
+                    "VPCID": {
+                        "Fn::GetAtt": [
+                            "VPCStack",
+                            "Outputs.VPCID"
+                        ]
                     },
-                    "PeerVolumeSize":{
-
+                    "InstanceType": {
+                        "Ref": "InstanceType"
+                    },
+                    "AvailabilityZone1": {
+                        "Fn::Select": [
+                            "0",
+                            {
+                                "Ref": "AvailabilityZones"
+                            }
+                        ]
+                    },
+                    "SubnetID1": {
+                        "Fn::GetAtt": [
+                            "VPCStack",
+                            "Outputs.PublicSubnet1ID"
+                        ]
+                    },
+                    "AvailabilityZone2": {
+                        "Fn::Select": [
+                            "1",
+                            {
+                                "Ref": "AvailabilityZones"
+                            }
+                        ]
+                    },
+                    "SubnetID2": {
+                        "Fn::GetAtt": [
+                            "VPCStack",
+                            "Outputs.PublicSubnet2ID"
+                        ]
+                    },
+                    "PeerVolumeSize": {
+                        "Ref": "PeerVolumeSize"
                     },
                     "KeyPairName": {
                         "Ref": "KeyPairName"
                     },
-                    "SecurityGroup":{
-
+                    "SecurityGroup": {
+                        "Ref": "PeerSecurityGroup"
                     },
-                    "SubnetID":{
-
+                    "IBMBlockchainVersion": {
+                        "Ref": "IBMBlockchainVersion"
+                    },
+                    "APIEndpoint": {
+                        "Ref": "APIEndpoint"
+                    },
+                    "APIKey": {
+                        "Ref": "APIKey"
+                    },
+                    "APISecret": {
+                        "Ref": "APISecret"
+                    },
+                    "NetworkID": {
+                        "Ref": "NetworkID"
+                    },
+                    "EnrollID": {
+                        "Ref": "EnrollID"
+                    },
+                    "EnrollSecret": {
+                        "Ref": "EnrollSecret"
+                    },
+                    "StateDatabase": {
+                        "Ref": "StateDatabase"
                     }
                 }
             }
