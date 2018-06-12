@@ -198,7 +198,7 @@
 			"Type": "AWS::CloudFormation::Stack",
 			"Properties": {
 				"TemplateURL": {
-					"Fn::Sub": "https://${QSS3BucketName}.amazonaws.com/${QSS3KeyPrefix}templates/ibm-fabric-peer-node.template"
+					"Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/ibm-fabric-peer-node.template"
 				},
 				"Parameters": {
 					"VPCID": {
@@ -253,7 +253,7 @@
 			"Type": "AWS::CloudFormation::Stack",
 			"Properties": {
 				"TemplateURL": {
-					"Fn::Sub": "https://${QSS3BucketName}.amazonaws.com/${QSS3KeyPrefix}templates/ibm-fabric-peer-node.template"
+					"Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/ibm-fabric-peer-node.template"
 				},
 				"Parameters": {
 					"VPCID": {

@@ -20,6 +20,6 @@ global:
     - us-west-2
   reporting: true
 tests:
-  ibm-fabrict:
+  ibm-fabric-peer:
     parameter_input: ibm-fabric-peer-master.json
     template_file: ibm-fabric-peer-master.template
