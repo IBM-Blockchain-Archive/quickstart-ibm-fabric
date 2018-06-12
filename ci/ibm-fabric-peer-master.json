@@ -1,0 +1,46 @@
+[
+        {
+                "ParameterKey": "AvailabilityZones",
+                "ParameterValue": "$[alfred_getaz_2]"
+        },
+        {
+                "ParameterKey": "KeyPairName",
+                "ParameterValue": "$[alfred_getkeypair]"
+        },
+        {
+                "ParameterKey": "RemoteAccessCIDR",
+                "ParameterValue": "0.0.0.0/0"
+        },
+        {
+                "ParameterKey": "PeerEndpointAccessCIDR",
+                "ParameterValue": "0.0.0.0/0"
+        },
+        {
+                "ParameterKey": "InstanceType",
+                "ParameterValue": "t2.medium"
+        },
+        {
+                "ParameterKey": "EnrollID",
+                "ParameterValue": "myId"
+        },
+        {
+                "ParameterKey": "EnrollSecret",
+                "ParameterValue": "mySecret"
+        },
+        {
+                "ParameterKey": "APIEndpoint",
+                "ParameterValue": "https://ibmblockchain-starter.ng.bluemix.net"
+        },
+        {
+                "ParameterKey": "APIKey",
+                "ParameterValue": "myOrg"
+        },
+        {
+                "ParameterKey": "APISecret",
+                "ParameterValue": "mySecret"
+        },
+        {
+                "ParameterKey": "NetworkID",
+                "ParameterValue": "myNetwork"
+        }
+]
