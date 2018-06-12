@@ -146,6 +146,7 @@
 		"APIKey": {
 			"Description": "The key from the IBM Blockchain network credentials",
 			"Type": "String",
+			"NoEcho": true,
 			"AllowedPattern": ".+"
 		},
 		"APISecret": {
@@ -201,6 +202,9 @@
 					"Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/ibm-fabric-peer-node.template"
 				},
 				"Parameters": {
+					"QSS3BucketName": {
+                        "Ref": "QSS3BucketName"
+                    },
 					"VPCID": {
 						"Ref": "VPCID"
 					},
@@ -256,6 +260,9 @@
 					"Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/ibm-fabric-peer-node.template"
 				},
 				"Parameters": {
+					"QSS3BucketName": {
+                        "Ref": "QSS3BucketName"
+                    },
 					"VPCID": {
 						"Ref": "VPCID"
 					},

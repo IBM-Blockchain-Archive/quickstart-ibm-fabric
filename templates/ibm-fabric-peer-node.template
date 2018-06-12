@@ -61,6 +61,7 @@
         "APIKey": {
             "Description": "The key from the IBM Blockchain network credentials",
             "Type": "String",
+            "NoEcho": true,
             "AllowedPattern": ".+"
         },
         "APISecret": {
@@ -167,6 +168,20 @@
             "Type": "Number",
             "Description": "Size of the EBS Volume Size used to store persistent data (ledger, state database, MSP) for the peer in GBs ",
             "Default": 100
+        },
+        "QSS3BucketName": {
+            "AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
+            "ConstraintDescription": "Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
+            "Default": "aws-quickstart",
+            "Description": "S3 bucket name for the Quick Start assets. Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
+            "Type": "String"
+        },
+        "QSS3KeyPrefix": {
+            "AllowedPattern": "^[0-9a-zA-Z-/]*$",
+            "ConstraintDescription": "Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
+            "Default": "quickstart-ibm-fabric/",
+            "Description": "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
+            "Type": "String"
         }
     },
     "Rules": {
@@ -285,7 +300,9 @@
                     "configSets": {
                         "Install": [
                             "aws-cli",
-                            "ibmblockchain-images"
+                            "ibmblockchain-images",
+                            "script-files",
+                            "run-scripts"
                         ]
                     },
                     "aws-cli": {
@@ -331,6 +348,47 @@
                                         ]
                                     ]
                                 }
+                            }
+                        }
+                    },
+                    "script-files": {
+                        "files": {
+                            "/tmp/sbin/create_users.sh": {
+                                "source": {
+                                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}scripts/create_users.sh"
+                                },
+                                "mode": "000755",
+                                "owner": "root",
+                                "group": "root",
+                                "authentication": "S3AccessCreds"
+                            },
+                            "/tmp/sbin/disk.sh": {
+                                "source": {
+                                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}scripts/disk.sh"
+                                },
+                                "mode": "000755",
+                                "owner": "root",
+                                "group": "root",
+                                "authentication": "S3AccessCreds"
+                            },
+                            "/tmp/core.yaml": {
+                                "source": {
+                                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}scripts/core.yaml"
+                                },
+                                "mode": "000755",
+                                "owner": "root",
+                                "group": "root",
+                                "authentication": "S3AccessCreds"
+                            }
+                        }
+                    },
+                    "run-scripts": {
+                        "commands": {
+                            "create_users": {
+                                "command": "./tmp/sbin/create_users.sh"
+                            },
+                            "disk": {
+                                "command": "./tmp/sbin/disk.sh"
                             }
                         }
                     }
@@ -410,7 +468,7 @@
             },
             "CreationPolicy": {
                 "ResourceSignal": {
-                    "Timeout": "PT5M"
+                    "Timeout": "PT10M"
                 }
             }
         }
