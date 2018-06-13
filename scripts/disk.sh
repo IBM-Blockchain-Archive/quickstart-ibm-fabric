@@ -31,8 +31,3 @@ mkfs -t xfs $DEV
 mount $DEV $MOUNT
 # update fstab
 echo "$DEV  $MOUNT  xfs  defaults  0  0" >> /etc/fstab
-
-# make required directories for the peer
-mkdir $MOUNT/config
-mkdir $MOUNT/msp
-mkdir $MOUNT/production

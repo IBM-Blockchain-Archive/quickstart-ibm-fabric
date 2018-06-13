@@ -22,12 +22,15 @@
 
 set -x
 
-# create fabric user and add to docker group
-useradd -u 7051 -G docker fabric
+mkdir /opt/ibmblockchain
+cd /opt/ibmblockchain
 
-# add ec2-user to fabric group
-usermod -a -G fabric ec2-user
+# fabric binaries
+curl https://nexus.hyperledger.org/content/repositories/releases/org/hyperledger/fabric/hyperledger-fabric/linux-amd64-1.1.0/hyperledger-fabric-linux-amd64-1.1.0.tar.gz -o tools.tar.gz \
+  && tar xvf tools.tar.gz \
+  && rm tools.tar.gz
 
-# create couchdb user
-groupadd -g 999 couchdb
-useradd -u 1000 -g couchdb couchdb
+# fabric-ca-client
+curl https://nexus.hyperledger.org/content/repositories/releases/org/hyperledger/fabric-ca/hyperledger-fabric-ca/linux-amd64-1.1.0/hyperledger-fabric-ca-linux-amd64-1.1.0.tar.gz -o ca.tar.gz \
+  && tar xvf ca.tar.gz \
+  && rm ca.tar.gz

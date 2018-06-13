@@ -20,28 +20,36 @@
                 "ParameterValue": "t2.medium"
         },
         {
-                "ParameterKey": "EnrollID",
-                "ParameterValue": "myId"
+                "ParameterKey": "Peer1EnrollID",
+                "ParameterValue": "remotepeer1"
         },
         {
-                "ParameterKey": "EnrollSecret",
-                "ParameterValue": "mySecret"
+                "ParameterKey": "Peer1EnrollSecret",
+                "ParameterValue": "VTjonVkIIlDT"
+        },
+        {
+                "ParameterKey": "Peer2EnrollID",
+                "ParameterValue": "remotepeer2"
+        },
+        {
+                "ParameterKey": "Peer2EnrollSecret",
+                "ParameterValue": "JpxmNuAhKiko"
         },
         {
                 "ParameterKey": "APIEndpoint",
-                "ParameterValue": "https://ibmblockchain-starter.ng.bluemix.net"
+                "ParameterValue": "https://blockchain-starter.ng.bluemix.net"
         },
         {
                 "ParameterKey": "APIKey",
-                "ParameterValue": "myOrg"
+                "ParameterValue": "org1"
         },
         {
                 "ParameterKey": "APISecret",
-                "ParameterValue": "mySecret"
+                "ParameterValue": "huJGEGCDEIgePLk8OdhqsPANEXx7ocydEC3hg68Vp9RqoqTR3_LDfJPVyePyAY9Q"
         },
         {
                 "ParameterKey": "NetworkID",
-                "ParameterValue": "myNetwork"
+                "ParameterValue": "nc128bc3ab0124af79e5bcc106c0f4629"
         },
         {
                 "ParameterKey": "QSS3BucketName",
@@ -50,5 +58,9 @@
         {
                 "ParameterKey": "QSS3KeyPrefix",
                 "ParameterValue": "quickstart-ibm-fabric/"
+        },
+        {
+                "ParameterKey": "LicenseAgreement",
+                "ParameterValue": "I agree"
         }
 ]
