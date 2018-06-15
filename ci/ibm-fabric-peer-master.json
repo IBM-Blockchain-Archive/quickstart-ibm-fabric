@@ -52,14 +52,6 @@
                 "ParameterValue": "nc128bc3ab0124af79e5bcc106c0f4629"
         },
         {
-                "ParameterKey": "QSS3BucketName",
-                "ParameterValue": "$[taskcat_autobucket]"
-        },
-        {
-                "ParameterKey": "QSS3KeyPrefix",
-                "ParameterValue": "quickstart-ibm-fabric/"
-        },
-        {
                 "ParameterKey": "LicenseAgreement",
                 "ParameterValue": "I agree"
         }
