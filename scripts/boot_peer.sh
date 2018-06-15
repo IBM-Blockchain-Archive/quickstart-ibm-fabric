@@ -145,6 +145,10 @@ cat << EOF > /opt/ibmblockchain/bin/env.sh
 #!/bin/bash
 export CORE_PEER_LOCALMSPID=${MSPID}
 export CORE_PEER_MSPCONFIGPATH=${DATA_DIR}/${ENROLL_ID}/msp
+export CORE_PEER_ADDRESS=localhost:7051
+export CORE_LOGGING_LEVEL=info
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_TLS_ROOTCERT_FILE=${DATA_DIR}/${ENROLL_ID}/tls/ca.crt
 export PATH=$PATH:/opt/ibmblockchain/bin
 export FABRIC_CFG_PATH=/opt/ibmblockchain/config
 EOF
