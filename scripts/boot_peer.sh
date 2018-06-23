@@ -121,6 +121,8 @@ startPeer() {
 	--volume=${DATA_DIR}/${ENROLL_ID}/tls:/etc/hyperledger/${ENROLL_ID}/tls \
 	--volume=/var/run/docker.sock:/var/run/docker.sock \
 	--publish 7051:7051 \
+	-e CORE_PEER_ID=${ENROLL_ID} \
+	-e CORE_PEER_NETWORKID=${NETWORK_ID} \
 	-e CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/${ENROLL_ID}/msp \
 	-e CORE_PEER_LOCALMSPID=${MSPID} \
 	-e CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=ibmblockchain \
