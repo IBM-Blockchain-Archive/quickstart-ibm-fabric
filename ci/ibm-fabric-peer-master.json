@@ -4,6 +4,10 @@
                 "ParameterValue": "$[taskcat_getaz_2]"
         },
         {
+                "ParameterKey": "QSS3KeyPrefix",
+                "ParameterValue": "quickstart-ibm-fabric/"
+        },
+        {
                 "ParameterKey": "KeyPairName",
                 "ParameterValue": "tonynv"
         },
