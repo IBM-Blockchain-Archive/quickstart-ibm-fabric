@@ -42,14 +42,35 @@
                         "Peer1EnrollID",
                         "Peer1EnrollSecret",
                         "Peer2EnrollID",
-                        "Peer2EnrollSecret",
+                        "Peer2EnrollSecret"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "IBM Blockchain Service Credentials"
+                    },
+                    "Parameters": [
                         "APIEndpoint",
                         "APIKey",
                         "APISecret",
                         "NetworkID"
                     ]
                 }
-            ]
+            ],
+            "ParameterLabels": {
+                "APIEndpoint": {
+                    "default": "URL"
+                },
+                "APIKey": {
+                    "default": "Key"
+                },
+                "APISecret": {
+                    "default": "Secret"
+                },
+                "NetworkID": {
+                    "default": "Network_ID"
+                }
+            }
         }
     },
     "Parameters": {
@@ -282,8 +303,8 @@
                 },
                 "Parameters": {
                     "LicenseAgreement": {
-						"Ref": "LicenseAgreement"
-					},
+                        "Ref": "LicenseAgreement"
+                    },
                     "QSS3BucketName": {
                         "Ref": "QSS3BucketName"
                     },

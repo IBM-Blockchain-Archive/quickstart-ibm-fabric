@@ -21,19 +21,19 @@
         },
         {
                 "ParameterKey": "Peer1EnrollID",
-                "ParameterValue": "remotepeer1"
+                "ParameterValue": "override"
         },
         {
                 "ParameterKey": "Peer1EnrollSecret",
-                "ParameterValue": "VTjonVkIIlDT"
+                "ParameterValue": "override"
         },
         {
                 "ParameterKey": "Peer2EnrollID",
-                "ParameterValue": "remotepeer2"
+                "ParameterValue": "override"
         },
         {
                 "ParameterKey": "Peer2EnrollSecret",
-                "ParameterValue": "JpxmNuAhKiko"
+                "ParameterValue": "override"
         },
         {
                 "ParameterKey": "APIEndpoint",
@@ -41,15 +41,15 @@
         },
         {
                 "ParameterKey": "APIKey",
-                "ParameterValue": "org1"
+                "ParameterValue": "override"
         },
         {
                 "ParameterKey": "APISecret",
-                "ParameterValue": "huJGEGCDEIgePLk8OdhqsPANEXx7ocydEC3hg68Vp9RqoqTR3_LDfJPVyePyAY9Q"
+                "ParameterValue": "override"
         },
         {
                 "ParameterKey": "NetworkID",
-                "ParameterValue": "nc128bc3ab0124af79e5bcc106c0f4629"
+                "ParameterValue": "override"
         },
         {
                 "ParameterKey": "LicenseAgreement",

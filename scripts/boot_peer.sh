@@ -73,7 +73,7 @@ startCouch() {
 }
 
 setCreds() {
-	CREDS=`curl -s -u ${API_KEY}:${API_SECRET} ${API_ENDPOINT}/api/v1/networks/${NETWORK_ID}/connection_profile`
+	CREDS=`curl --max-time 10 --retry 5 --retry-delay 0 --retry-max-time 60 -s -u ${API_KEY}:${API_SECRET} ${API_ENDPOINT}/api/v1/networks/${NETWORK_ID}/connection_profile`
 	MSPID=`echo -n $CREDS | jq -r ".organizations.${API_KEY}.mspid"`
 }
 
