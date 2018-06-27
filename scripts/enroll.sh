@@ -22,12 +22,37 @@
 
 set -x
 
-# create fabric user and add to docker group
-useradd -u 7051 -G docker fabric
+ID=$1
+SECRET=$2
+CA_URL=$3
+DATADIR="/data/ibmblockchain"
+BINDIR="/opt/ibmblockchain/bin"
+CA_EP=`echo -n ${CA_URL} |awk -F "//" '{print $2}'`
+FABRIC_CA_CLIENT_HOME=${DATADIR}/$1
 
-# add ec2-user to fabric group
-usermod -a -G fabric ec2-user
+# create fabric-ca-client home
+if [ ! -d "${FABRIC_CA_CLIENT_HOME}" ]; then
+  mkdir -p ${FABRIC_CA_CLIENT_HOME}
+fi
 
-# create couchdb user
-groupadd -g 999 couchdb
-useradd -u 1000 -g couchdb couchdb
+# create msp directory
+mkdir -p ${FABRIC_CA_CLIENT_HOME}/msp
+
+# get the TLS root certificates
+echo -n | openssl s_client -showcerts  -connect ${CA_EP} | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ${FABRIC_CA_CLIENT_HOME}/cachain.pem
+
+${BINDIR}/fabric-ca-client enroll -d \
+  -H ${FABRIC_CA_CLIENT_HOME} \
+  -u https://${ID}:${SECRET}@${CA_EP} \
+  --tls.certfiles ${FABRIC_CA_CLIENT_HOME}/cachain.pem
+
+# add the peer cert to admin certs
+mkdir ${FABRIC_CA_CLIENT_HOME}/msp/admincerts
+cp ${FABRIC_CA_CLIENT_HOME}/msp/signcerts/* ${FABRIC_CA_CLIENT_HOME}/msp/admincerts/
+
+# make fabric:fabric owner for msp folder
+chown -R fabric:fabric ${FABRIC_CA_CLIENT_HOME}/msp
+
+
+
+

@@ -6,6 +6,14 @@
 			"ParameterGroups": [
 				{
 					"Label": {
+						"default": "Software License Agreement"
+					},
+					"Parameters": [
+						"LicenseAgreement"
+					]
+				},
+				{
+					"Label": {
 						"default": "Network Configuration"
 					},
 					"Parameters": [
@@ -34,8 +42,10 @@
 						"IBMBlockchainVersion",
 						"StateDatabase",
 						"PeerVolumeSize",
-						"EnrollID",
-						"EnrollSecret",
+						"Peer1EnrollID",
+						"Peer1EnrollSecret",
+						"Peer2EnrollID",
+						"Peer2EnrollSecret",
 						"APIEndpoint",
 						"APIKey",
 						"APISecret",
@@ -46,32 +56,42 @@
 		}
 	},
 	"Parameters": {
+		"LicenseAgreement": {
+			"Description": "I have read and agree to the license terms for IBM Blockchain Platform (https://www-03.ibm.com/software/sla/sladb.nsf/pdf/ipla/$file/ipla_en.pdf).",
+			"Type": "String",
+			"AllowedValues": [
+				"I agree",
+				"-"
+			],
+			"Default": "-",
+			"ConstraintDescription": "must answer 'I agree'"
+		},
 		"VPCID": {
-			"Description": "ID of your existing VPC for deployment",
+			"Description": "ID of your existing VPC for deployment.",
 			"Type": "AWS::EC2::VPC::Id"
 		},
 		"AvailabilityZone1": {
-			"Description": "The Availability Zone in which to deploy the first peer node",
+			"Description": "The Availability Zone in which to deploy the first peer node.",
 			"Type": "AWS::EC2::AvailabilityZone::Name"
 		},
 		"SubnetID1": {
-			"Description": "ID of the subnet to use for the first peer node",
+			"Description": "ID of the subnet to use for the first peer node.",
 			"Type": "AWS::EC2::Subnet::Id"
 		},
 		"AvailabilityZone2": {
-			"Description": "The Availability Zone in which to deploy the second peer node",
+			"Description": "The Availability Zone in which to deploy the second peer node.",
 			"Type": "AWS::EC2::AvailabilityZone::Name"
 		},
 		"SubnetID2": {
-			"Description": "ID of the subnet to use for the second peer node",
+			"Description": "ID of the subnet to use for the second peer node.",
 			"Type": "AWS::EC2::Subnet::Id"
 		},
 		"KeyPairName": {
-			"Description": "Name of an existing EC2 key pair within the AWS region",
+			"Description": "Name of an existing EC2 key pair within the AWS region.",
 			"Type": "AWS::EC2::KeyPair::KeyName"
 		},
 		"SecurityGroup": {
-			"Description": "ID of an existing EC2 security group within the AWS region; should allow ingress on ports 22, 7051 and optionally 7053",
+			"Description": "ID of an existing EC2 security group within the AWS region; should allow ingress on ports 22, 7051 and optionally 7053.",
 			"Type": "AWS::EC2::SecurityGroup::Id"
 		},
 		"InstanceType": {
@@ -126,11 +146,11 @@
 		},
 		"PeerVolumeSize": {
 			"Type": "Number",
-			"Description": "Size of the EBS Volume Size used to store persistent data (ledger, state database, MSP) for the peer in GBs ",
+			"Description": "Size of the EBS Volume Size used to store persistent data (ledger, state database, MSP) for the peer in GBs.",
 			"Default": 100
 		},
 		"IBMBlockchainVersion": {
-			"Description": "IBM Blockchain version to deploy",
+			"Description": "IBM Blockchain version to deploy.",
 			"Type": "String",
 			"AllowedValues": [
 				"1.1.0"
@@ -138,46 +158,57 @@
 			"Default": "1.1.0"
 		},
 		"APIEndpoint": {
-			"Description": "The url from the IBM Blockchain network credentials",
+			"Description": "The url from the IBM Blockchain network credentials.",
 			"Type": "String",
 			"AllowedPattern": "^https:\/\/[a-zA-Z0-9-\/.]+$",
 			"ConstraintDescription": "This URL must be a valid https URL"
 		},
 		"APIKey": {
-			"Description": "The key from the IBM Blockchain network credentials",
+			"Description": "The key from the IBM Blockchain network credentials.",
 			"Type": "String",
 			"NoEcho": true,
 			"AllowedPattern": ".+"
 		},
 		"APISecret": {
-			"Description": "The secret from the IBM Blockchain network credentials",
+			"Description": "The secret from the IBM Blockchain network credentials.",
 			"Type": "String",
 			"AllowedPattern": ".+"
 		},
 		"NetworkID": {
-			"Description": "The network_id from the IBM Blockchain network credentials",
+			"Description": "The network_id from the IBM Blockchain network credentials.",
 			"Type": "String",
 			"AllowedPattern": ".+"
 		},
-		"EnrollID": {
-			"Description": "The registered ID the peer will use to enroll",
+		"Peer1EnrollID": {
+			"Description": "The registered ID the first peer will use to enroll.",
 			"Type": "String",
 			"AllowedPattern": ".+"
 		},
-		"EnrollSecret": {
-			"Description": "The secret the peer will use to enroll",
+		"Peer1EnrollSecret": {
+			"Description": "The secret the first peer will use to enroll.",
+			"Type": "String",
+			"NoEcho": true,
+			"AllowedPattern": ".+"
+		},
+		"Peer2EnrollID": {
+			"Description": "The registered ID the second peer will use to enroll.",
+			"Type": "String",
+			"AllowedPattern": ".+"
+		},
+		"Peer2EnrollSecret": {
+			"Description": "The secret the second peer will use to enroll.",
 			"Type": "String",
 			"NoEcho": true,
 			"AllowedPattern": ".+"
 		},
 		"StateDatabase": {
-			"Description": "The type of database to use for storing blockchain state",
+			"Description": "The type of database to use for storing blockchain state.  This selection should match the State Database type used by the rest of the network.",
 			"Type": "String",
 			"AllowedValues": [
-				"leveldb",
-				"couchdb"
+				"goleveldb",
+				"CouchDB"
 			],
-			"Default": "couchdb"
+			"Default": "CouchDB"
 		},
 		"QSS3BucketName": {
 			"AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
@@ -202,9 +233,12 @@
 					"Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/ibm-fabric-peer-node.template"
 				},
 				"Parameters": {
+					"LicenseAgreement": {
+						"Ref": "LicenseAgreement"
+					},
 					"QSS3BucketName": {
-                        "Ref": "QSS3BucketName"
-                    },
+						"Ref": "QSS3BucketName"
+					},
 					"VPCID": {
 						"Ref": "VPCID"
 					},
@@ -242,10 +276,10 @@
 						"Ref": "NetworkID"
 					},
 					"EnrollID": {
-						"Ref": "EnrollID"
+						"Ref": "Peer1EnrollID"
 					},
 					"EnrollSecret": {
-						"Ref": "EnrollSecret"
+						"Ref": "Peer1EnrollSecret"
 					},
 					"StateDatabase": {
 						"Ref": "StateDatabase"
@@ -260,9 +294,12 @@
 					"Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/ibm-fabric-peer-node.template"
 				},
 				"Parameters": {
+					"LicenseAgreement": {
+						"Ref": "LicenseAgreement"
+					},
 					"QSS3BucketName": {
-                        "Ref": "QSS3BucketName"
-                    },
+						"Ref": "QSS3BucketName"
+					},
 					"VPCID": {
 						"Ref": "VPCID"
 					},
@@ -300,10 +337,10 @@
 						"Ref": "NetworkID"
 					},
 					"EnrollID": {
-						"Ref": "EnrollID"
+						"Ref": "Peer2EnrollID"
 					},
 					"EnrollSecret": {
-						"Ref": "EnrollSecret"
+						"Ref": "Peer2EnrollSecret"
 					},
 					"StateDatabase": {
 						"Ref": "StateDatabase"

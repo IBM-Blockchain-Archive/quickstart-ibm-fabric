@@ -4,6 +4,10 @@
                 "ParameterValue": "$[taskcat_getaz_2]"
         },
         {
+                "ParameterKey": "QSS3KeyPrefix",
+                "ParameterValue": "quickstart-ibm-fabric/"
+        },
+        {
                 "ParameterKey": "KeyPairName",
                 "ParameterValue": "tonynv"
         },
@@ -20,35 +24,39 @@
                 "ParameterValue": "t2.medium"
         },
         {
-                "ParameterKey": "EnrollID",
-                "ParameterValue": "myId"
+                "ParameterKey": "Peer1EnrollID",
+                "ParameterValue": "override"
         },
         {
-                "ParameterKey": "EnrollSecret",
-                "ParameterValue": "mySecret"
+                "ParameterKey": "Peer1EnrollSecret",
+                "ParameterValue": "override"
+        },
+        {
+                "ParameterKey": "Peer2EnrollID",
+                "ParameterValue": "override"
+        },
+        {
+                "ParameterKey": "Peer2EnrollSecret",
+                "ParameterValue": "override"
         },
         {
                 "ParameterKey": "APIEndpoint",
-                "ParameterValue": "https://ibmblockchain-starter.ng.bluemix.net"
+                "ParameterValue": "https://blockchain-starter.ng.bluemix.net"
         },
         {
                 "ParameterKey": "APIKey",
-                "ParameterValue": "myOrg"
+                "ParameterValue": "override"
         },
         {
                 "ParameterKey": "APISecret",
-                "ParameterValue": "mySecret"
+                "ParameterValue": "override"
         },
         {
                 "ParameterKey": "NetworkID",
-                "ParameterValue": "myNetwork"
+                "ParameterValue": "override"
         },
         {
-                "ParameterKey": "QSS3BucketName",
-                "ParameterValue": "$[taskcat_autobucket]"
-        },
-        {
-                "ParameterKey": "QSS3KeyPrefix",
-                "ParameterValue": "quickstart-ibm-fabric/"
+                "ParameterKey": "LicenseAgreement",
+                "ParameterValue": "I agree"
         }
 ]
