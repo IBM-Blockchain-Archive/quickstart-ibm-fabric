@@ -6,6 +6,14 @@
             "ParameterGroups": [
                 {
                     "Label": {
+                        "default": "Software License Agreement"
+                    },
+                    "Parameters": [
+                        "LicenseAgreement"
+                    ]
+                },
+                {
+                    "Label": {
                         "default": "Network Configuration"
                     },
                     "Parameters": [
@@ -44,8 +52,18 @@
         }
     },
     "Parameters": {
+        "LicenseAgreement": {
+            "Description": "I have read and agree to the license terms for IBM Blockchain Platform (https://www-03.ibm.com/software/sla/sladb.nsf/pdf/ipla/$file/ipla_en.pdf).",
+            "Type": "String",
+            "AllowedValues": [
+                "I agree",
+                "-"
+            ],
+            "Default": "-",
+            "ConstraintDescription": "must answer 'I agree'"
+        },
         "IBMBlockchainVersion": {
-            "Description": "IBM Blockchain version to deploy",
+            "Description": "IBM Blockchain version to deploy.",
             "Type": "String",
             "AllowedValues": [
                 "1.1.0"
@@ -53,53 +71,53 @@
             "Default": "1.1.0"
         },
         "APIEndpoint": {
-            "Description": "The url from the IBM Blockchain network credentials",
+            "Description": "The url from the IBM Blockchain network credentials.",
             "Type": "String",
             "AllowedPattern": "^https:\/\/[a-zA-Z0-9-\/.]+$",
             "ConstraintDescription": "This URL must be a valid https URL"
         },
         "APIKey": {
-            "Description": "The key from the IBM Blockchain network credentials",
+            "Description": "The key from the IBM Blockchain network credentials.",
             "Type": "String",
             "NoEcho": true,
             "AllowedPattern": ".+"
         },
         "APISecret": {
-            "Description": "The secret from the IBM Blockchain network credentials",
+            "Description": "The secret from the IBM Blockchain network credentials.",
             "Type": "String",
             "AllowedPattern": ".+"
         },
         "NetworkID": {
-            "Description": "The network_id from the IBM Blockchain network credentials",
+            "Description": "The network_id from the IBM Blockchain network credentials.",
             "Type": "String",
             "AllowedPattern": ".+"
         },
         "EnrollID": {
-            "Description": "The registered ID the peer will use to enroll",
+            "Description": "The registered ID the peer will use to enroll.",
             "Type": "String",
             "AllowedPattern": ".+"
         },
         "EnrollSecret": {
-            "Description": "The secret the peer will use to enroll",
+            "Description": "The secret the peer will use to enroll.",
             "Type": "String",
             "NoEcho": true,
             "AllowedPattern": ".+"
         },
         "StateDatabase": {
-            "Description": "The type of database to use for storing blockchain state",
+            "Description": "The type of database to use for storing blockchain state.  This selection should match the State Database type used by the rest of the network.",
             "Type": "String",
             "AllowedValues": [
-                "leveldb",
-                "couchdb"
+                "goleveldb",
+                "CouchDB"
             ],
-            "Default": "couchdb"
+            "Default": "CouchDB"
         },
         "KeyPairName": {
-            "Description": "Name of an existing EC2 key pair within the AWS region",
+            "Description": "Name of an existing EC2 key pair within the AWS region.",
             "Type": "AWS::EC2::KeyPair::KeyName"
         },
         "SecurityGroup": {
-            "Description": "ID of an existing EC2 security group within the AWS region; should allow ingress on ports 22, 7051 and optionally 7053",
+            "Description": "ID of an existing EC2 security group within the AWS region; should allow ingress on ports 22, 7051 and optionally 7053.",
             "Type": "AWS::EC2::SecurityGroup::Id"
         },
         "InstanceType": {
@@ -153,20 +171,20 @@
             "Type": "String"
         },
         "VPCID": {
-            "Description": "ID of your existing VPC for deployment",
+            "Description": "ID of your existing VPC for deployment.",
             "Type": "AWS::EC2::VPC::Id"
         },
         "AvailabilityZone": {
-            "Description": "The Availability Zones in which to deploy the peer node",
+            "Description": "The Availability Zones in which to deploy the peer node.",
             "Type": "AWS::EC2::AvailabilityZone::Name"
         },
         "SubnetID": {
-            "Description": "ID of the subnet to use for the Peer",
+            "Description": "ID of the subnet to use for the peer node.",
             "Type": "AWS::EC2::Subnet::Id"
         },
         "PeerVolumeSize": {
             "Type": "Number",
-            "Description": "Size of the EBS Volume Size used to store persistent data (ledger, state database, MSP) for the peer in GBs ",
+            "Description": "Size of the EBS Volume Size used to store persistent data (ledger, state database, MSP) for the peer in GBs.",
             "Default": 100
         },
         "QSS3BucketName": {
@@ -299,16 +317,18 @@
                 "AWS::CloudFormation::Init": {
                     "configSets": {
                         "Install": [
-                            "aws-cli",
+                            "pkgs",
                             "ibmblockchain-images",
                             "script-files",
-                            "run-scripts"
+                            "config-scripts",
+                            "launch-peer"
                         ]
                     },
-                    "aws-cli": {
+                    "pkgs": {
                         "packages": {
                             "yum": {
-                                "aws-cli": []
+                                "aws-cli": [],
+                                "jq": []
                             }
                         }
                     },
@@ -353,14 +373,21 @@
                     },
                     "script-files": {
                         "files": {
+                            "/tmp/sbin/boot_peer.sh": {
+                                "source": {
+                                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}scripts/boot_peer.sh"
+                                },
+                                "mode": "000755",
+                                "owner": "root",
+                                "group": "root"
+                            },
                             "/tmp/sbin/create_users.sh": {
                                 "source": {
                                     "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}scripts/create_users.sh"
                                 },
                                 "mode": "000755",
                                 "owner": "root",
-                                "group": "root",
-                                "authentication": "S3AccessCreds"
+                                "group": "root"
                             },
                             "/tmp/sbin/disk.sh": {
                                 "source": {
@@ -368,27 +395,88 @@
                                 },
                                 "mode": "000755",
                                 "owner": "root",
-                                "group": "root",
-                                "authentication": "S3AccessCreds"
+                                "group": "root"
                             },
-                            "/tmp/core.yaml": {
+                            "/tmp/sbin/tools.sh": {
                                 "source": {
-                                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}scripts/core.yaml"
+                                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}scripts/tools.sh"
                                 },
                                 "mode": "000755",
                                 "owner": "root",
-                                "group": "root",
-                                "authentication": "S3AccessCreds"
+                                "group": "root"
+                            },
+                            "/tmp/sbin/tls.sh": {
+                                "source": {
+                                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}scripts/tls.sh"
+                                },
+                                "mode": "000755",
+                                "owner": "root",
+                                "group": "root"
+                            },
+                            "/opt/ibmblockchain/bin/enroll.sh": {
+                                "source": {
+                                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}scripts/enroll.sh"
+                                },
+                                "mode": "000755",
+                                "owner": "root",
+                                "group": "root"
                             }
                         }
                     },
-                    "run-scripts": {
+                    "config-scripts": {
                         "commands": {
                             "create_users": {
                                 "command": "./tmp/sbin/create_users.sh"
                             },
                             "disk": {
                                 "command": "./tmp/sbin/disk.sh"
+                            },
+                            "tools": {
+                                "command": "./tmp/sbin/tools.sh"
+                            },
+                            "tls": {
+                                "command": "./tmp/sbin/tls.sh"
+                            }
+                        }
+                    },
+                    "launch-peer": {
+                        "commands": {
+                            "boot_peer": {
+                                "command": {
+                                    "Fn::Join": [
+                                        " ",
+                                        [
+                                            "./tmp/sbin/boot_peer.sh",
+                                            {
+                                                "Ref": "EnrollID"
+                                            },
+                                            {
+                                                "Ref": "EnrollSecret"
+                                            },
+                                            {
+                                                "Ref": "APIEndpoint"
+                                            },
+                                            {
+                                                "Ref": "APIKey"
+                                            },
+                                            {
+                                                "Ref": "APISecret"
+                                            },
+                                            {
+                                                "Ref": "NetworkID"
+                                            },
+                                            {
+                                                "Ref": "StateDatabase"
+                                            },
+                                            {
+                                                "Ref": "IBMBlockchainVersion"
+                                            },
+                                            {
+                                                "Ref": "LicenseAgreement"
+                                            }
+                                        ]
+                                    ]
+                                }
                             }
                         }
                     }
