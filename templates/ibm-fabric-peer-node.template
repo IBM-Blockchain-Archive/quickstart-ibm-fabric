@@ -73,7 +73,7 @@
         "APIEndpoint": {
             "Description": "The url from the IBM Blockchain network credentials.",
             "Type": "String",
-            "AllowedPattern": "^https:\/\/[a-zA-Z0-9-\/.]+$",
+            "AllowedPattern": "^(https:\/\/)[a-zA-Z0-9-\/.]+((:[0-9]+))?(\/.*\/?)?",
             "ConstraintDescription": "This URL must be a valid https URL"
         },
         "APIKey": {
