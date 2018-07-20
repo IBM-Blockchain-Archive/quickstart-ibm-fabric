@@ -40,15 +40,11 @@
                 "ParameterValue": "override"
         },
         {
-                "ParameterKey": "APIEndpoint",
-                "ParameterValue": "https://blockchain-starter.ng.bluemix.net"
-        },
-        {
-                "ParameterKey": "APIKey",
+                "ParameterKey": "CAUrl",
                 "ParameterValue": "override"
         },
         {
-                "ParameterKey": "APISecret",
+                "ParameterKey": "MspID",
                 "ParameterValue": "override"
         },
         {
