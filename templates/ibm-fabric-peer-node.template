@@ -42,9 +42,8 @@
                         "PeerVolumeSize",
                         "EnrollID",
                         "EnrollSecret",
-                        "APIEndpoint",
-                        "APIKey",
-                        "APISecret",
+                        "CAUrl",
+                        "MspID",
                         "NetworkID"
                     ]
                 }
@@ -70,25 +69,19 @@
             ],
             "Default": "1.1.0"
         },
-        "APIEndpoint": {
-            "Description": "The url from the IBM Blockchain network credentials.",
+        "CAUrl": {
+            "Description": "The url for the IBM Blockchain Certificate Authority.",
             "Type": "String",
             "AllowedPattern": "^(https:\/\/)[a-zA-Z0-9-\/.]+((:[0-9]+))?(\/.*\/?)?",
             "ConstraintDescription": "This URL must be a valid https URL"
         },
-        "APIKey": {
-            "Description": "The key from the IBM Blockchain network credentials.",
-            "Type": "String",
-            "NoEcho": true,
-            "AllowedPattern": ".+"
-        },
-        "APISecret": {
-            "Description": "The secret from the IBM Blockchain network credentials.",
-            "Type": "String",
-            "AllowedPattern": ".+"
-        },
         "NetworkID": {
             "Description": "The network_id from the IBM Blockchain network credentials.",
+            "Type": "String",
+            "AllowedPattern": ".+"
+        },
+        "MspID": {
+            "Description": "The MspID from the IBM Blockchain network credentials.",
             "Type": "String",
             "AllowedPattern": ".+"
         },
@@ -246,52 +239,52 @@
     "Mappings": {
         "AWSAMIRegionMap": {
             "AMI": {
-                "AMZNECSOPTIMIZED": "amzn-ami-2018.03.a-amazon-ecs-optimized"
+                "AMZLINUXHVM201803": "amzn-ami-hvm-2018.03.0.20180622-x86_64-gp2"
             },
             "us-east-2": {
-                "AMZNECSOPTIMIZED": "ami-956e52f0"
+                "AMZLINUXHVM201803": "ami-40142d25"
             },
             "us-east-1": {
-                "AMZNECSOPTIMIZED": "ami-5253c32d"
+                "AMZLINUXHVM201803": "ami-cfe4b2b0"
             },
             "us-west-2": {
-                "AMZNECSOPTIMIZED": "ami-d2f489aa"
+                "AMZLINUXHVM201803": "ami-0ad99772"
             },
             "us-west-1": {
-                "AMZNECSOPTIMIZED": "ami-6b81980b"
+                "AMZLINUXHVM201803": "ami-0e86606d"
             },
             "eu-west-3": {
-                "AMZNECSOPTIMIZED": "ami-ca75c4b7"
+                "AMZLINUXHVM201803": "ami-d50bbaa8"
             },
             "eu-west-2": {
-                "AMZNECSOPTIMIZED": "ami-3622cf51"
+                "AMZLINUXHVM201803": "ami-b2b55cd5"
             },
             "eu-west-1": {
-                "AMZNECSOPTIMIZED": "ami-c91624b0"
+                "AMZLINUXHVM201803": "ami-e4515e0e"
             },
             "eu-central-1": {
-                "AMZNECSOPTIMIZED": "ami-10e6c8fb"
+                "AMZLINUXHVM201803": "ami-a058674b"
             },
             "ap-northeast-2": {
-                "AMZNECSOPTIMIZED": "ami-7c69c112"
+                "AMZLINUXHVM201803": "ami-ebc47185"
             },
             "ap-northeast-1": {
-                "AMZNECSOPTIMIZED": "ami-f3f8098c"
+                "AMZLINUXHVM201803": "ami-9c9443e3"
             },
             "ap-southeast-2": {
-                "AMZNECSOPTIMIZED": "ami-bc04d5de"
+                "AMZLINUXHVM201803": "ami-33f92051"
             },
             "ap-southeast-1": {
-                "AMZNECSOPTIMIZED": "ami-b75a6acb"
+                "AMZLINUXHVM201803": "ami-ed838091"
             },
             "ca-central-1": {
-                "AMZNECSOPTIMIZED": "ami-da6cecbe"
+                "AMZLINUXHVM201803": "ami-03e86a67"
             },
             "ap-south-1": {
-                "AMZNECSOPTIMIZED": "ami-c7072aa8"
+                "AMZLINUXHVM201803": "ami-5a8da735"
             },
             "sa-east-1": {
-                "AMZNECSOPTIMIZED": "ami-a1e2becd"
+                "AMZLINUXHVM201803": "ami-83d58fef"
             }
         }
     },
@@ -318,6 +311,7 @@
                     "configSets": {
                         "Install": [
                             "pkgs",
+                            "docker-config",
                             "ibmblockchain-images",
                             "script-files",
                             "config-scripts",
@@ -329,6 +323,29 @@
                             "yum": {
                                 "aws-cli": [],
                                 "jq": []
+                            }
+                        }
+                    },
+                    "docker-config": {
+                        "packages": {
+                            "yum": {
+                                "docker": []
+                            }
+                        },
+                        "commands": {
+                            "start":{
+                                "command": "service docker start"
+                            },
+                            "add-user": {
+                                "command": "usermod -aG docker ec2-user"
+                            }
+                        },
+                        "services": {
+                            "sysvinit": {
+                                "docker": {
+                                    "enabled": "true",
+                                    "ensureRunning": "true"
+                                }
                             }
                         }
                     },
@@ -454,13 +471,10 @@
                                                 "Ref": "EnrollSecret"
                                             },
                                             {
-                                                "Ref": "APIEndpoint"
+                                                "Ref": "CAUrl"
                                             },
                                             {
-                                                "Ref": "APIKey"
-                                            },
-                                            {
-                                                "Ref": "APISecret"
+                                                "Ref": "MspID"
                                             },
                                             {
                                                 "Ref": "NetworkID"
@@ -489,7 +503,7 @@
                         {
                             "Ref": "AWS::Region"
                         },
-                        "AMZNECSOPTIMIZED"
+                        "AMZLINUXHVM201803"
                     ]
                 },
                 "InstanceType": {
@@ -501,6 +515,16 @@
                             "Ref": "PeerStorageVolume"
                         },
                         "Device": "/dev/xvdl"
+                    }
+                ],
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/xvda",
+                        "Ebs": {
+                            "VolumeType": "gp2",
+                            "DeleteOnTermination": "true",
+                            "VolumeSize": "30"
+                        }
                     }
                 ],
                 "KeyName": {
@@ -556,7 +580,7 @@
             },
             "CreationPolicy": {
                 "ResourceSignal": {
-                    "Timeout": "PT10M"
+                    "Timeout": "PT15M"
                 }
             }
         }

@@ -42,33 +42,19 @@
                         "Peer1EnrollID",
                         "Peer1EnrollSecret",
                         "Peer2EnrollID",
-                        "Peer2EnrollSecret"
-                    ]
-                },
-                {
-                    "Label": {
-                        "default": "IBM Blockchain Service Credentials"
-                    },
-                    "Parameters": [
-                        "APIEndpoint",
-                        "APIKey",
-                        "APISecret",
+                        "Peer2EnrollSecret",
+                        "CAUrl",
+                        "MspID",
                         "NetworkID"
                     ]
                 }
             ],
             "ParameterLabels": {
-                "APIEndpoint": {
-                    "default": "URL"
-                },
-                "APIKey": {
-                    "default": "Key"
-                },
-                "APISecret": {
-                    "default": "Secret"
+                "CAUrl": {
+                    "default": "Certificate Authority URL"
                 },
                 "NetworkID": {
-                    "default": "Network_ID"
+                    "default": "Network ID"
                 }
             }
         }
@@ -127,21 +113,15 @@
             ],
             "Default": "1.1.0"
         },
-        "APIEndpoint": {
-            "Description": "The url from the IBM Blockchain network credentials.",
+        "CAUrl": {
+            "Description": "The url for the IBM Blockchain Certificate Authority.",
             "Type": "String",
             "AllowedPattern": "^(https:\/\/)[a-zA-Z0-9-\/.]+((:[0-9]+))?(\/.*\/?)?",
             "ConstraintDescription": "This URL must be a valid https URL"
         },
-        "APIKey": {
-            "Description": "The key from the IBM Blockchain network credentials.",
+        "MspID": {
+            "Description": "The MspID from the IBM Blockchain network credentials.",
             "Type": "String",
-            "AllowedPattern": ".+"
-        },
-        "APISecret": {
-            "Description": "The secret from the IBM Blockchain network credentials.",
-            "Type": "String",
-            "NoEcho": true,
             "AllowedPattern": ".+"
         },
         "NetworkID": {
@@ -357,14 +337,11 @@
                     "IBMBlockchainVersion": {
                         "Ref": "IBMBlockchainVersion"
                     },
-                    "APIEndpoint": {
-                        "Ref": "APIEndpoint"
+                    "CAUrl": {
+                        "Ref": "CAUrl"
                     },
-                    "APIKey": {
-                        "Ref": "APIKey"
-                    },
-                    "APISecret": {
-                        "Ref": "APISecret"
+                    "MspID": {
+                        "Ref": "MspID"
                     },
                     "NetworkID": {
                         "Ref": "NetworkID"

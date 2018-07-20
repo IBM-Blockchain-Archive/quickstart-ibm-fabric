@@ -35,17 +35,14 @@ DOMAIN=`echo ${PUBLIC_FQDN} |awk -F. '{$1="";OFS="." ; print $0}' | sed 's/^.//'
 CRYPTO_DIR="/tmp/crypto"
 ENROLL_ID=$1
 ENROLL_SECRET=$2
-API_ENDPOINT=$3
-API_KEY=$4
-API_SECRET=$5
-NETWORK_ID=$6
-STATE_DB=$7
-VERSION=$8
+CA_URL=$3
+MSPID=$4
+NETWORK_ID=$5
+STATE_DB=$6
+VERSION=$7
 DATA_DIR="/data/ibmblockchain"
 COUCHDB_USER=admin
 COUCHDB_PASSWORD=`openssl rand -base64 32`
-CREDS=
-MSPID=
 
 # log settings
 MAX_SIZE=50m
@@ -72,11 +69,6 @@ startCouch() {
 	ibmblockchain/fabric-couchdb:0.4.6
 }
 
-setCreds() {
-	CREDS=`curl --max-time 10 --retry 5 --retry-delay 0 --retry-max-time 60 -s -u ${API_KEY}:${API_SECRET} ${API_ENDPOINT}/api/v1/networks/${NETWORK_ID}/connection_profile`
-	MSPID=`echo -n $CREDS | jq -r ".organizations.${API_KEY}.mspid"`
-}
-
 # create user-defined network so name resolution works inside containers
 dockerNetwork() {
 	docker network create ibmblockchain
@@ -84,8 +76,6 @@ dockerNetwork() {
 
 # enroll the peer
 enrollPeer() {
-	CA_KEY=`echo -n $CREDS | jq ".organizations.${API_KEY}.certificateAuthorities | .[0]"`
-	CA_URL=`echo -n $CREDS | jq -r ".certificateAuthorities.${CA_KEY}.url"`
 	/opt/ibmblockchain/bin/enroll.sh ${ENROLL_ID} ${ENROLL_SECRET} ${CA_URL}
 }
 
@@ -165,8 +155,6 @@ generateCrypto() {
 }
 
 main() {
-	# get credentials for BMX
-	setCreds
 	# enroll the peer user
 	enrollPeer
 	# create docker network
