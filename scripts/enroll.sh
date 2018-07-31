@@ -28,6 +28,9 @@ CA_URL=$3
 DATADIR="/data/ibmblockchain"
 BINDIR="/opt/ibmblockchain/bin"
 CA_EP=`echo -n ${CA_URL} |awk -F "//" '{print $2}'`
+CA_HOST=`echo -n ${CA_EP} |awk -F ":" '{print $1}'`
+CA_PORT=`echo -n ${CA_EP} |awk -F ":" '{print $2}'`
+CA_PORT=${CA_PORT:-443}
 FABRIC_CA_CLIENT_HOME=${DATADIR}/$1
 
 # create fabric-ca-client home
@@ -38,8 +41,8 @@ fi
 # create msp directory
 mkdir -p ${FABRIC_CA_CLIENT_HOME}/msp
 
-# get the TLS root certificates
-echo -n | openssl s_client -showcerts  -connect ${CA_EP} | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ${FABRIC_CA_CLIENT_HOME}/cachain.pem
+# get the TLS root certificates for the CA
+echo -n | openssl s_client -showcerts  -connect ${CA_HOST}:${CA_PORT} | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ${FABRIC_CA_CLIENT_HOME}/cachain.pem
 
 ${BINDIR}/fabric-ca-client enroll -d \
   -H ${FABRIC_CA_CLIENT_HOME} \
@@ -52,7 +55,3 @@ cp ${FABRIC_CA_CLIENT_HOME}/msp/signcerts/* ${FABRIC_CA_CLIENT_HOME}/msp/admince
 
 # make fabric:fabric owner for msp folder
 chown -R fabric:fabric ${FABRIC_CA_CLIENT_HOME}/msp
-
-
-
-
