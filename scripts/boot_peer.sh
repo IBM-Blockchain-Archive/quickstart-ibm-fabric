@@ -48,6 +48,21 @@ COUCHDB_PASSWORD=`openssl rand -base64 32`
 MAX_SIZE=50m
 MAX_FILE=100
 
+# utility functions
+# source:  https://github.com/aws-quickstart/quickstart-linux-utilities/blob/master/quickstart-cfn-tools.source
+function qs_err() {
+        touch /var/tmp/stack_failed
+        echo "[FAILED] @ $1" >>/var/tmp/stack_failed
+        echo "[FAILED] @ $1"
+}
+
+function qs_status() {
+    if [ -f /var/tmp/stack_failed ]; then
+        printf "stack failed";
+        exit 1;
+    fi
+}
+
 # start CouchDB based on STATE_DB setting
 startCouch() {
 	# create data volume
@@ -67,16 +82,31 @@ startCouch() {
 	-e COUCHDB_USER=${COUCHDB_USER} \
 	-e COUCHDB_PASSWORD=${COUCHDB_PASSWORD} \
 	ibmblockchain/fabric-couchdb:0.4.6
+
+	if [ $? -eq 0 ]; then
+		qs_err "failed to start CouchDB"
+	fi
 }
 
 # create user-defined network so name resolution works inside containers
 dockerNetwork() {
 	docker network create ibmblockchain
+	if [ $? -eq 0 ]; then
+		qs_err "failed to create Docker network"
+	fi
 }
 
 # enroll the peer
 enrollPeer() {
 	/opt/ibmblockchain/bin/enroll.sh ${ENROLL_ID} ${ENROLL_SECRET} ${CA_URL}
+	if [ $? -eq 0 ]; then
+		qs_err "failed to enroll peer"
+	fi
+	# check that enrollment succeeded
+	if [ -z "$(ls -A /data/ibmblockchain/${ENROLL_ID}/msp/signcerts)" ]; then
+		qs_err "failed to enroll peer"
+	fi
+
 }
 
 startPeer() {
@@ -130,6 +160,10 @@ startPeer() {
 	-e GROUP_ID=${group_id} \
 	ibmblockchain/fabric-peer:${VERSION} \
 	peer node start
+
+	if [ $? -eq 0 ]; then
+		qs_err "failed to start peer"
+	fi
 }
 
 createEnv() {
@@ -157,8 +191,10 @@ generateCrypto() {
 main() {
 	# enroll the peer user
 	enrollPeer
+	qs_status
 	# create docker network
 	dockerNetwork
+	qs_status
 
 	if [ "$STATE_DB" = "CouchDB" ];then
 		startCouch
@@ -166,9 +202,11 @@ main() {
 
 	# start the peer
 	startPeer
+	qs_status
 
 	# create local client env
 	createEnv
+	qs_status
 }
 
 main
