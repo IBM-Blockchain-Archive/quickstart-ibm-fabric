@@ -44,17 +44,52 @@
                         "Peer2EnrollID",
                         "Peer2EnrollSecret",
                         "CAUrl",
+                        "CAName",
+                        "CATLSCertificateChain",
                         "MspID",
                         "NetworkID"
                     ]
                 }
             ],
             "ParameterLabels": {
-                "CAUrl": {
-                    "default": "Certificate Authority URL"
+                "LicenseAgreement": {
+                    "default": "License Agreement"
+                },
+                "IBMBlockchainVersion": {
+                    "default": "IBM Blockchain Version"
+                },
+                "StateDatabase": {
+                    "default": "Type of State Database"
+                },
+                "PeerVolumesSize": {
+                    "default": "Peer persistent volume size"
                 },
                 "NetworkID": {
                     "default": "Network ID"
+                },
+                "MspID": {
+                    "default": "Organization MSP"
+                },
+                "CAName": {
+                    "default": "Certificate Authority (CA) Name"
+                },
+                "CAUrl": {
+                    "default": "Certificate Authority (CA) URL"
+                },
+                "CATLSCertificateChain": {
+                    "default": "Certificate Authority (CA) TLS Certificate Chain"
+                },
+                "Peer1EnrollID": {
+                    "default": "Peer 1 enroll ID"
+                },
+                "Peer1EnrollSecret": {
+                    "default": "Peer 1 enroll secret"
+                },
+                "Peer2EnrollID": {
+                    "default": "Peer 2 enroll ID"
+                },
+                "Peer2EnrollSecret": {
+                    "default": "Peer 2 enroll secret"
                 }
             }
         }
@@ -114,18 +149,27 @@
             "Default": "1.1.0"
         },
         "CAUrl": {
-            "Description": "The url for the IBM Blockchain Certificate Authority.",
+            "Description": "The url for the Fabric Certificate Authority to use for enrolling the peer.",
             "Type": "String",
             "AllowedPattern": "^(https:\/\/)[a-zA-Z0-9-\/.]+((:[0-9]+))?(\/.*\/?)?",
             "ConstraintDescription": "This URL must be a valid https URL"
         },
-        "MspID": {
-            "Description": "The MspID from the IBM Blockchain network credentials.",
+        "CAName": {
+            "Description": "The name of the Fabric Certificate Authority to use for enrolling the peer.",
             "Type": "String",
             "AllowedPattern": ".+"
         },
+        "CATLSCertificateChain": {
+            "Description": "PEM-encoded certificate chain which issued the TLS certificate for the Fabric Certificate Authority.",
+            "Type": "String"
+        },
         "NetworkID": {
-            "Description": "The network_id from the IBM Blockchain network credentials.",
+            "Description": "The network id to use for the peer.",
+            "Type": "String",
+            "AllowedPattern": ".+"
+        },
+        "MspID": {
+            "Description": "The MSP identifier for the organization to which this peer belongs.",
             "Type": "String",
             "AllowedPattern": ".+"
         },
@@ -340,6 +384,12 @@
                     "CAUrl": {
                         "Ref": "CAUrl"
                     },
+                    "CAName": {
+						"Ref": "CAName"
+					},
+					"CATLSCertificateChain": {
+						"Ref": "CATLSCertificateChain"
+					},
                     "MspID": {
                         "Ref": "MspID"
                     },

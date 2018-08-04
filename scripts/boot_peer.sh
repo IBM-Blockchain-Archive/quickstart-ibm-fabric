@@ -36,10 +36,13 @@ CRYPTO_DIR="/tmp/crypto"
 ENROLL_ID=$1
 ENROLL_SECRET=$2
 CA_URL=$3
-MSPID=$4
-NETWORK_ID=$5
-STATE_DB=$6
-VERSION=$7
+CA_NAME=$4
+CA_TLS_CERTCHAIN="$5"
+MSPID=$6
+NETWORK_ID=$7
+STATE_DB=$8
+VERSION=$9
+LICENSE_AGREEMENT=${10}
 DATA_DIR="/data/ibmblockchain"
 COUCHDB_USER=admin
 COUCHDB_PASSWORD=`openssl rand -base64 32`
@@ -83,7 +86,7 @@ startCouch() {
 	-e COUCHDB_PASSWORD=${COUCHDB_PASSWORD} \
 	ibmblockchain/fabric-couchdb:0.4.6
 
-	if [ $? -eq 0 ]; then
+	if [ $? -ne 0 ]; then
 		qs_err "failed to start CouchDB"
 	fi
 }
@@ -91,15 +94,15 @@ startCouch() {
 # create user-defined network so name resolution works inside containers
 dockerNetwork() {
 	docker network create ibmblockchain
-	if [ $? -eq 0 ]; then
+	if [ $? -ne 0 ]; then
 		qs_err "failed to create Docker network"
 	fi
 }
 
 # enroll the peer
 enrollPeer() {
-	/opt/ibmblockchain/bin/enroll.sh ${ENROLL_ID} ${ENROLL_SECRET} ${CA_URL}
-	if [ $? -eq 0 ]; then
+	/opt/ibmblockchain/bin/enroll.sh ${ENROLL_ID} ${ENROLL_SECRET} ${CA_URL} ${CA_NAME} ${CA_TLS_CERTCHAIN}
+	if [ $? -ne 0 ]; then
 		qs_err "failed to enroll peer"
 	fi
 	# check that enrollment succeeded
@@ -161,7 +164,7 @@ startPeer() {
 	ibmblockchain/fabric-peer:${VERSION} \
 	peer node start
 
-	if [ $? -eq 0 ]; then
+	if [ $? -ne 0 ]; then
 		qs_err "failed to start peer"
 	fi
 }
