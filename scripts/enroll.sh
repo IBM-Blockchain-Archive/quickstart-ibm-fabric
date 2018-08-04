@@ -25,6 +25,8 @@ set -x
 ID=$1
 SECRET=$2
 CA_URL=$3
+CA_NAME=$4
+CA_TLS_CERTCHAIN="$5"
 DATADIR="/data/ibmblockchain"
 BINDIR="/opt/ibmblockchain/bin"
 CA_EP=`echo -n ${CA_URL} |awk -F "//" '{print $2}'`
@@ -42,11 +44,14 @@ fi
 mkdir -p ${FABRIC_CA_CLIENT_HOME}/msp
 
 # get the TLS root certificates for the CA
-echo -n | openssl s_client -showcerts  -connect ${CA_HOST}:${CA_PORT} | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ${FABRIC_CA_CLIENT_HOME}/cachain.pem
+#echo -n | openssl s_client -showcerts  -connect ${CA_HOST}:${CA_PORT} | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ${FABRIC_CA_CLIENT_HOME}/cachain.pem
+#echo -e ${CA_TLS_CERTCHAIN} > ${FABRIC_CA_CLIENT_HOME}/cachain.pem
+mv /tmp/cachain.pem ${FABRIC_CA_CLIENT_HOME}/cachain.pem
 
 ${BINDIR}/fabric-ca-client enroll -d \
   -H ${FABRIC_CA_CLIENT_HOME} \
   -u https://${ID}:${SECRET}@${CA_EP} \
+  --caname ${CA_NAME} \
   --tls.certfiles ${FABRIC_CA_CLIENT_HOME}/cachain.pem
 
 # add the peer cert to admin certs

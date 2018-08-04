@@ -44,6 +44,14 @@
                 "ParameterValue": "override"
         },
         {
+                "ParameterKey": "CAName",
+                "ParameterValue": "override"
+        },
+        {
+                "ParameterKey": "CATLSCertificateChain",
+                "ParameterValue": "override"
+        },
+        {
                 "ParameterKey": "MspID",
                 "ParameterValue": "override"
         },
