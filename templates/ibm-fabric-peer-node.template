@@ -601,6 +601,24 @@
                 "SubnetId": {
                     "Ref": "SubnetID"
                 },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Join": [
+                                "-",
+                                [
+                                    {
+                                        "Ref": "MspID"
+                                    },
+                                    {
+                                        "Ref": "EnrollID"
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                ],
                 "UserData": {
                     "Fn::Base64": {
                         "Fn::Join": [
