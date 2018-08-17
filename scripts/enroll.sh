@@ -43,10 +43,8 @@ fi
 # create msp directory
 mkdir -p ${FABRIC_CA_CLIENT_HOME}/msp
 
-# get the TLS root certificates for the CA
-#echo -n | openssl s_client -showcerts  -connect ${CA_HOST}:${CA_PORT} | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ${FABRIC_CA_CLIENT_HOME}/cachain.pem
-#echo -e ${CA_TLS_CERTCHAIN} > ${FABRIC_CA_CLIENT_HOME}/cachain.pem
-mv /tmp/cachain.pem ${FABRIC_CA_CLIENT_HOME}/cachain.pem
+# set the TLS root certificates for the CA
+sed  -e 's/\\r\\n/,/g' ${CA_TLS_CERTCHAIN} |tr ',' '\n' > ${FABRIC_CA_CLIENT_HOME}/cachain.pem
 
 ${BINDIR}/fabric-ca-client enroll -d \
   -H ${FABRIC_CA_CLIENT_HOME} \
