@@ -503,7 +503,7 @@
                         }
                     },
                     "launch-peer": {
-                        "files":{
+                        "files": {
                             "/tmp/cachain.pem": {
                                 "content": {
                                     "Ref": "CATLSCertificateChain"
@@ -601,6 +601,24 @@
                 "SubnetId": {
                     "Ref": "SubnetID"
                 },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Join": [
+                                "-",
+                                [
+                                    {
+                                        "Ref": "MspID"
+                                    },
+                                    {
+                                        "Ref": "EnrollID"
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                ],
                 "UserData": {
                     "Fn::Base64": {
                         "Fn::Join": [
@@ -642,6 +660,79 @@
                 "ResourceSignal": {
                     "Timeout": "PT15M"
                 }
+            }
+        }
+    },
+    "Outputs": {
+        "ExternalEndpoint": {
+            "Description": "The public endpoint for the peer.",
+            "Value": {
+                "Fn::Join": [
+                    ":",
+                    [
+                        {
+                            "Fn::GetAtt": [
+                                "IBMBlockchainPeer",
+                                "PublicDnsName"
+                            ]
+                        },
+                        "7051"
+                    ]
+                ]
+            }
+        },
+        "PublicDnsName": {
+            "Description": "The public hostname for the peer instance.",
+            "Value": {
+                "Fn::GetAtt": [
+                    "IBMBlockchainPeer",
+                    "PublicDnsName"
+                ]
+            }
+        },
+        "InternalEndpoint": {
+            "Description": "The private endpoint for the peer.",
+            "Value": {
+                "Fn::Join": [
+                    ":",
+                    [
+                        {
+                            "Fn::GetAtt": [
+                                "IBMBlockchainPeer",
+                                "PrivateDnsName"
+                            ]
+                        },
+                        "7051"
+                    ]
+                ]
+            }
+        },
+        "PrivateDnsName": {
+            "Description": "The private hostname for the peer instance.",
+            "Value": {
+                "Fn::GetAtt": [
+                    "IBMBlockchainPeer",
+                    "PrivateDnsName"
+                ]
+            }
+        },
+        "TLSRootCertificate": {
+            "Description": "The SCP URI for copying the root certificate which issued the TLS certificate for the peer.",
+            "Value": {
+                "Fn::Sub": [
+                    "ec2-user@${Host}:/data/ibmblockchain/${EnrollID}/tls/ca.crt",
+                    {
+                        "Host": {
+                            "Fn::GetAtt": [
+                                "IBMBlockchainPeer",
+                                "PublicDnsName"
+                            ]
+                        },
+                        "EnrollID": {
+                            "Ref": "EnrollID"
+                        }
+                    }
+                ]
             }
         }
     }
