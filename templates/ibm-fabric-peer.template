@@ -399,5 +399,97 @@
 				}
 			}
 		}
+	},
+	"Outputs": {
+		"Peer1ExternalEndpoint": {
+			"Description": "The public endpoint for the first peer.",
+			"Value": {
+				"Fn::GetAtt": [
+					"Peer1Stack",
+					"Outputs.ExternalEndpoint"
+				]
+			}
+		},
+		"Peer1InternalEndpoint": {
+			"Description": "The private endpoint for the first peer.",
+			"Value": {
+				"Fn::GetAtt": [
+					"Peer1Stack",
+					"Outputs.InternalEndpoint"
+				]
+			}
+		},
+		"Peer1PublicDnsName": {
+            "Description": "The public hostname for the first peer instance.",
+            "Value": {
+                "Fn::GetAtt": [
+                    "Peer1Stack",
+                    "Outputs.PublicDnsName"
+                ]
+            }
+        },
+        "Peer1PrivateDnsName": {
+            "Description": "The private hostname for the first peer instance.",
+            "Value": {
+                "Fn::GetAtt": [
+                    "Peer1Stack",
+                    "Outputs.PrivateDnsName"
+                ]
+            }
+		},
+		"Peer1TLSRootCertificate": {
+            "Description": "The SCP URI for copying the root certificate which issued the TLS certificate for the first peer.",
+            "Value": {
+                "Fn::GetAtt": [
+                    "Peer1Stack",
+                    "Outputs.TLSRootCertificate"
+                ]
+            }
+        },
+		"Peer2ExternalEndpoint": {
+			"Description": "The public endpoint for the second peer.",
+			"Value": {
+				"Fn::GetAtt": [
+					"Peer2Stack",
+					"Outputs.ExternalEndpoint"
+				]
+			}
+		},
+		"Peer2InternalEndpoint": {
+			"Description": "The private endpoint for the second peer.",
+			"Value": {
+				"Fn::GetAtt": [
+					"Peer2Stack",
+					"Outputs.InternalEndpoint"
+				]
+			}
+		},
+		"Peer2PublicDnsName": {
+            "Description": "The public hostname for the second peer instance.",
+            "Value": {
+                "Fn::GetAtt": [
+                    "Peer2Stack",
+                    "Outputs.PublicDnsName"
+                ]
+            }
+        },
+        "Peer2PrivateDnsName": {
+            "Description": "The private hostname for the second peer instance.",
+            "Value": {
+                "Fn::GetAtt": [
+                    "Peer2Stack",
+                    "Outputs.PrivateDnsName"
+                ]
+            }
+        },
+		"Peer2TLSRootCertificate": {
+            "Description": "The SCP URI for copying the root certificate which issued the TLS certificate for the second peer.",
+            "Value": {
+                "Fn::GetAtt": [
+                    "Peer2Stack",
+                    "Outputs.TLSRootCertificate"
+                ]
+            }
+        }
 	}
 }
