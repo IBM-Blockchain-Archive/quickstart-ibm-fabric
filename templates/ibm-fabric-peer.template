@@ -95,7 +95,7 @@
 	},
 	"Parameters": {
 		"LicenseAgreement": {
-			"Description": "I have read and agree to the license terms for IBM Blockchain Platform (https://www-03.ibm.com/software/sla/sladb.nsf/pdf/ipla/$file/ipla_en.pdf).",
+			"Description": "I have read and agree to the license terms for IBM Blockchain Platform (http://ibm.biz/BdY3AY).",
 			"Type": "String",
 			"AllowedValues": [
 				"I agree",
