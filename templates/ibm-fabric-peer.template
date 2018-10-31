@@ -49,8 +49,7 @@
 						"CAUrl",
 						"CAName",
 						"CATLSCertificateChain",
-						"MspID",
-						"NetworkID"
+						"MspID"
 					]
 				}
 			],
@@ -66,9 +65,6 @@
 				},
 				"PeerVolumesSize": {
 					"default": "Peer persistent volume size"
-				},
-				"NetworkID": {
-					"default": "Network ID"
 				},
 				"MspID": {
 					"default": "Organization MSP"
@@ -195,9 +191,9 @@
 			"Description": "IBM Blockchain version to deploy.",
 			"Type": "String",
 			"AllowedValues": [
-				"1.1.0"
+				"1.2.1"
 			],
-			"Default": "1.1.0"
+			"Default": "1.2.1"
 		},
 		"CAUrl": {
 			"Description": "The url for the Fabric Certificate Authority to use for enrolling the peer.",
@@ -213,11 +209,6 @@
 		"CATLSCertificateChain": {
 			"Description": "PEM-encoded certificate chain which issued the TLS certificate for the Fabric Certificate Authority.",
 			"Type": "String"
-		},
-		"NetworkID": {
-			"Description": "The network id to use for the peer.",
-			"Type": "String",
-			"AllowedPattern": ".+"
 		},
 		"MspID": {
 			"Description": "The MSP identifier for the organization to which this peer belongs.",
@@ -320,9 +311,6 @@
 					"MspID": {
 						"Ref": "MspID"
 					},
-					"NetworkID": {
-						"Ref": "NetworkID"
-					},
 					"EnrollID": {
 						"Ref": "Peer1EnrollID"
 					},
@@ -383,9 +371,6 @@
 					},
 					"MspID": {
 						"Ref": "MspID"
-					},
-					"NetworkID": {
-						"Ref": "NetworkID"
 					},
 					"EnrollID": {
 						"Ref": "Peer2EnrollID"

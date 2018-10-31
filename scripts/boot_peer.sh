@@ -24,10 +24,10 @@ CA_URL=$3
 CA_NAME=$4
 CA_TLS_CERTCHAIN="$5"
 MSPID=$6
-NETWORK_ID=$7
-STATE_DB=$8
-VERSION=$9
-LICENSE_AGREEMENT=${10}
+STATE_DB=$7
+VERSION=$8
+LICENSE_AGREEMENT=$9
+COUCHDB_VERSION=0.4.10
 DATA_DIR="/data/ibmblockchain"
 COUCHDB_USER=admin
 COUCHDB_PASSWORD=`openssl rand -base64 32`
@@ -69,7 +69,7 @@ startCouch() {
 	--log-opt labels=${ENROLL_ID}-couchdb \
 	-e COUCHDB_USER=${COUCHDB_USER} \
 	-e COUCHDB_PASSWORD=${COUCHDB_PASSWORD} \
-	ibmblockchain/fabric-couchdb:0.4.6
+	ibmblockchain/fabric-couchdb:${COUCHDB_VERSION}
 
 	if [ $? -ne 0 ]; then
 		qs_err "failed to start CouchDB"
@@ -130,10 +130,12 @@ startPeer() {
 	--volume=/var/run/docker.sock:/var/run/docker.sock \
 	--publish 7051:7051 \
 	-e CORE_PEER_ID=${ENROLL_ID} \
-	-e CORE_PEER_NETWORKID=${NETWORK_ID} \
+	-e CORE_PEER_NETWORKID=aws_${MSPID} \
 	-e CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/${ENROLL_ID}/msp \
 	-e CORE_PEER_LOCALMSPID=${MSPID} \
 	-e CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=ibmblockchain \
+	-e CORE_CHAINCODE_BUILDER=ibmblockchain/fabric-ccenv:${VERSION} \
+	-e CORE_CHAINCODE_GOLANG_RUNTIME=ibmblockchain/fabric-baseos:0.4.10 \
 	-e CORE_LEDGER_STATE_STATEDATABASE=${STATE_DB} \
 	-e CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb:5984 \
 	-e CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_USER} \
