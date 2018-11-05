@@ -55,41 +55,71 @@
 			],
 			"ParameterLabels": {
 				"LicenseAgreement": {
-					"default": "License Agreement"
+					"default": "License agreement"
 				},
-				"IBMBlockchainVersion": {
-					"default": "IBM Blockchain Version"
+				"VPCID": {
+                    "default": "VPC ID"
 				},
-				"StateDatabase": {
-					"default": "Type of State Database"
+				"AvailabilityZone1": {
+                    "default": "Availability Zone 1"
 				},
-				"PeerVolumesSize": {
-					"default": "Peer persistent volume size"
+				"SubnetID1": {
+                    "default": "Subnet ID 1"
 				},
-				"MspID": {
-					"default": "Organization MSP"
+				"AvailabilityZone2": {
+                    "default": "Availability Zone 2"
 				},
-				"CAName": {
-					"default": "Certificate Authority (CA) Name"
+				"SubnetID2": {
+                    "default": "Subnet ID 2"
 				},
-				"CAUrl": {
-					"default": "Certificate Authority (CA) URL"
+				"InstanceType": {
+                    "default": "Instance type"
+                },
+                "KeyPairName": {
+                    "default": "Key pair name"
 				},
-				"CATLSCertificateChain": {
-					"default": "Certificate Authority (CA) TLS Certificate Chain"
+				"SecurityGroup": {
+                    "default": "Security group"
 				},
-				"Peer1EnrollID": {
-					"default": "Peer 1 enroll ID"
-				},
-				"Peer1EnrollSecret": {
-					"default": "Peer 1 enroll secret"
-				},
-				"Peer2EnrollID": {
-					"default": "Peer 2 enroll ID"
-				},
-				"Peer2EnrollSecret": {
-					"default": "Peer 2 enroll secret"
-				}
+                "IBMBlockchainVersion": {
+                    "default": "IBM Blockchain version"
+                },
+                "StateDatabase": {
+                    "default": "Type of state database"
+                },
+                "PeerVolumesSize": {
+                    "default": "Peer volume size"
+                },
+                "Peer1EnrollID": {
+                    "default": "Peer 1 enroll ID"
+                },
+                "Peer1EnrollSecret": {
+                    "default": "Peer 1 enroll secret"
+                },
+                "Peer2EnrollID": {
+                    "default": "Peer 2 enroll ID"
+                },
+                "Peer2EnrollSecret": {
+                    "default": "Peer 2 enroll secret"
+                },
+                "CAUrl": {
+                    "default": "Certificate Authority (CA) URL"
+                },
+                "CAName": {
+                    "default": "Certificate Authority (CA) Name"
+                },
+                "CATLSCertificateChain": {
+                    "default": "Certificate Authority (CA) TLS Certificate Chain"
+                },
+                "MspID": {
+                    "default": "Organization MSP"
+                },
+                "QSS3BucketName": {
+                    "default": "Quick Start S3 bucket name"
+                },
+                "QSS3KeyPrefix": {
+                    "default": "Quick Start S3 key prefix"
+                }
 			}
 		}
 	},
