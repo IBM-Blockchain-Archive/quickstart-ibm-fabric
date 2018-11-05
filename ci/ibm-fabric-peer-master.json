@@ -56,10 +56,6 @@
                 "ParameterValue": "override"
         },
         {
-                "ParameterKey": "NetworkID",
-                "ParameterValue": "override"
-        },
-        {
                 "ParameterKey": "LicenseAgreement",
                 "ParameterValue": "I agree"
         }
