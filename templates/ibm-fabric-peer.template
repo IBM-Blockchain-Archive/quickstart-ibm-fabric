@@ -51,7 +51,16 @@
 						"CATLSCertificateChain",
 						"MspID"
 					]
-				}
+				},
+                {
+                    "Label": {
+                        "default": "AWS Quick Start Configuration"
+                    },
+                    "Parameters": [
+                        "QSS3BucketName",
+                        "QSS3KeyPrefix"
+                    ]
+                }
 			],
 			"ParameterLabels": {
 				"LicenseAgreement": {
@@ -87,7 +96,7 @@
                 "StateDatabase": {
                     "default": "Type of state database"
                 },
-                "PeerVolumesSize": {
+                "PeerVolumeSize": {
                     "default": "Peer volume size"
                 },
                 "Peer1EnrollID": {
