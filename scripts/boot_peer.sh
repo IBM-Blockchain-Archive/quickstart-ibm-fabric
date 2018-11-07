@@ -7,15 +7,6 @@
 
 set -x
 
-PUBLIC_FQDN=`curl --silent http://169.254.169.254/latest/meta-data/public-hostname`
-DOMAIN=`echo -n ${PUBLIC_FQDN}|awk -F '[.]' '{print $2"."$3"."$4"."$5}'`
-PUBLIC_HOSTNAME=`echo -n ${PUBLIC_FQDN}|cut -d. -f1`
-
-
-PUBLIC_FQDN=`curl --silent http://169.254.169.254/latest/meta-data/public-hostname`
-PUBLIC_HOSTNAME=`echo ${PUBLIC_FQDN} |awk -F. '{ print $1 }'`
-DOMAIN=`echo ${PUBLIC_FQDN} |awk -F. '{$1="";OFS="." ; print $0}' | sed 's/^.//'`
-
 
 CRYPTO_DIR="/tmp/crypto"
 ENROLL_ID=$1
@@ -24,10 +15,12 @@ CA_URL=$3
 CA_NAME=$4
 CA_TLS_CERTCHAIN="$5"
 MSPID=$6
-NETWORK_ID=$7
-STATE_DB=$8
-VERSION=$9
-LICENSE_AGREEMENT=${10}
+STATE_DB=$7
+VERSION=$8
+EIP=$9
+LICENSE_AGREEMENT="${10}"
+
+COUCHDB_VERSION=0.4.10
 DATA_DIR="/data/ibmblockchain"
 COUCHDB_USER=admin
 COUCHDB_PASSWORD=`openssl rand -base64 32`
@@ -35,6 +28,14 @@ COUCHDB_PASSWORD=`openssl rand -base64 32`
 # log settings
 MAX_SIZE=50m
 MAX_FILE=100
+
+# DNS info
+PUBLIC_FQDN=`curl --silent http://169.254.169.254/latest/meta-data/public-hostname`
+DOMAIN=`echo ${PUBLIC_FQDN} |awk -F. '{$1="";OFS="." ; print $0}' | sed 's/^.//'`
+HOSTNAME=ec2-${EIP//./-}
+PUBLIC_DNS="${HOSTNAME}.${DOMAIN}"
+
+
 
 # utility functions
 # source:  https://github.com/aws-quickstart/quickstart-linux-utilities/blob/master/quickstart-cfn-tools.source
@@ -69,7 +70,7 @@ startCouch() {
 	--log-opt labels=${ENROLL_ID}-couchdb \
 	-e COUCHDB_USER=${COUCHDB_USER} \
 	-e COUCHDB_PASSWORD=${COUCHDB_PASSWORD} \
-	ibmblockchain/fabric-couchdb:0.4.6
+	ibmblockchain/fabric-couchdb:${COUCHDB_VERSION}
 
 	if [ $? -ne 0 ]; then
 		qs_err "failed to start CouchDB"
@@ -112,7 +113,7 @@ startPeer() {
 	# generate crypto material
 	generateCrypto
 	# get the TLS certs
-	mv /tmp/crypto/peerOrganizations/${DOMAIN}/peers/${PUBLIC_FQDN}/tls ${DATA_DIR}/${ENROLL_ID}
+	mv /tmp/crypto/peerOrganizations/${DOMAIN}/peers/${PUBLIC_DNS}/tls ${DATA_DIR}/${ENROLL_ID}
 	chown -R fabric:fabric ${DATA_DIR}/${ENROLL_ID}/tls
 
 	docker run -d \
@@ -130,10 +131,12 @@ startPeer() {
 	--volume=/var/run/docker.sock:/var/run/docker.sock \
 	--publish 7051:7051 \
 	-e CORE_PEER_ID=${ENROLL_ID} \
-	-e CORE_PEER_NETWORKID=${NETWORK_ID} \
+	-e CORE_PEER_NETWORKID=aws_${MSPID} \
 	-e CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/${ENROLL_ID}/msp \
 	-e CORE_PEER_LOCALMSPID=${MSPID} \
 	-e CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=ibmblockchain \
+	-e CORE_CHAINCODE_BUILDER=ibmblockchain/fabric-ccenv:${VERSION} \
+	-e CORE_CHAINCODE_GOLANG_RUNTIME=ibmblockchain/fabric-baseos:0.4.10 \
 	-e CORE_LEDGER_STATE_STATEDATABASE=${STATE_DB} \
 	-e CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb:5984 \
 	-e CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_USER} \

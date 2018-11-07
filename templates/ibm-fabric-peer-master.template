@@ -46,38 +46,46 @@
                         "CAUrl",
                         "CAName",
                         "CATLSCertificateChain",
-                        "MspID",
-                        "NetworkID"
+                        "MspID"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "AWS Quick Start Configuration"
+                    },
+                    "Parameters": [
+                        "QSS3BucketName",
+                        "QSS3KeyPrefix"
                     ]
                 }
             ],
             "ParameterLabels": {
                 "LicenseAgreement": {
-                    "default": "License Agreement"
+                    "default": "License agreement"
+                },
+                "AvailabilityZones": {
+                    "default": "Availability Zones"
+                },
+                "RemoteAccessCIDR": {
+                    "default": "Allowed SSH access CIDR"
+                },
+                "PeerEndpointAccessCIDR": {
+                    "default": "Peer endpoint access CIDR"
+                },
+                "InstanceType": {
+                    "default": "Instance type"
+                },
+                "KeyPairName": {
+                    "default": "Key pair name"
                 },
                 "IBMBlockchainVersion": {
-                    "default": "IBM Blockchain Version"
+                    "default": "IBM Blockchain version"
                 },
                 "StateDatabase": {
-                    "default": "Type of State Database"
+                    "default": "Type of state database"
                 },
-                "PeerVolumesSize": {
-                    "default": "Peer persistent volume size"
-                },
-                "NetworkID": {
-                    "default": "Network ID"
-                },
-                "MspID": {
-                    "default": "Organization MSP"
-                },
-                "CAName": {
-                    "default": "Certificate Authority (CA) Name"
-                },
-                "CAUrl": {
-                    "default": "Certificate Authority (CA) URL"
-                },
-                "CATLSCertificateChain": {
-                    "default": "Certificate Authority (CA) TLS Certificate Chain"
+                "PeerVolumeSize": {
+                    "default": "Peer volume size"
                 },
                 "Peer1EnrollID": {
                     "default": "Peer 1 enroll ID"
@@ -90,13 +98,31 @@
                 },
                 "Peer2EnrollSecret": {
                     "default": "Peer 2 enroll secret"
+                },
+                "CAUrl": {
+                    "default": "Certificate Authority (CA) URL"
+                },
+                "CAName": {
+                    "default": "Certificate Authority (CA) Name"
+                },
+                "CATLSCertificateChain": {
+                    "default": "Certificate Authority (CA) TLS Certificate Chain"
+                },
+                "MspID": {
+                    "default": "Organization MSP"
+                },
+                "QSS3BucketName": {
+                    "default": "Quick Start S3 bucket name"
+                },
+                "QSS3KeyPrefix": {
+                    "default": "Quick Start S3 key prefix"
                 }
             }
         }
     },
     "Parameters": {
         "LicenseAgreement": {
-            "Description": "I have read and agree to the license terms for IBM Blockchain Platform (https://www-03.ibm.com/software/sla/sladb.nsf/pdf/ipla/$file/ipla_en.pdf).",
+            "Description": "I have read and agree to the license terms for IBM Blockchain Platform (http://ibm.biz/BdY3AY).",
             "Type": "String",
             "AllowedValues": [
                 "I agree",
@@ -112,13 +138,13 @@
         "RemoteAccessCIDR": {
             "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(0|1[6-9]|2[0-8]))$",
             "ConstraintDescription": "CIDR block parameter must be in the form x.x.x.x/16-28 or 0.0.0.0/0",
-            "Description": "Allowed CIDR block for external SSH access to the IBM Blockchain Peer instances",
+            "Description": "Allowed CIDR block for external SSH access to the IBM Blockchain Peer instances. It can be set to 0.0.0.0/0 to allow access from anywhere (not recommended).",
             "Type": "String"
         },
         "PeerEndpointAccessCIDR": {
             "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(0|1[6-9]|2[0-8]))$",
             "ConstraintDescription": "CIDR block parameter must be in the form x.x.x.x/16-28 or 0.0.0.0/0",
-            "Description": "Allowed CIDR block for external gRPC access to the IBM Blockchain Peer instances",
+            "Description": "Allowed CIDR block for external gRPC access to the IBM Blockchain Peer instances.  Typically set to 0.0.0.0/0 to allow access from anywhere.",
             "Type": "String"
         },
         "QSS3BucketName": {
@@ -144,9 +170,9 @@
             "Description": "IBM Blockchain version to deploy.",
             "Type": "String",
             "AllowedValues": [
-                "1.1.0"
+                "1.2.1"
             ],
-            "Default": "1.1.0"
+            "Default": "1.2.1"
         },
         "CAUrl": {
             "Description": "The url for the Fabric Certificate Authority to use for enrolling the peer.",
@@ -162,11 +188,6 @@
         "CATLSCertificateChain": {
             "Description": "PEM-encoded certificate chain which issued the TLS certificate for the Fabric Certificate Authority.",
             "Type": "String"
-        },
-        "NetworkID": {
-            "Description": "The network id to use for the peer.",
-            "Type": "String",
-            "AllowedPattern": ".+"
         },
         "MspID": {
             "Description": "The MSP identifier for the organization to which this peer belongs.",
@@ -392,9 +413,6 @@
 					},
                     "MspID": {
                         "Ref": "MspID"
-                    },
-                    "NetworkID": {
-                        "Ref": "NetworkID"
                     },
                     "Peer1EnrollID": {
                         "Ref": "Peer1EnrollID"
