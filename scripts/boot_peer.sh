@@ -7,15 +7,6 @@
 
 set -x
 
-PUBLIC_FQDN=`curl --silent http://169.254.169.254/latest/meta-data/public-hostname`
-DOMAIN=`echo -n ${PUBLIC_FQDN}|awk -F '[.]' '{print $2"."$3"."$4"."$5}'`
-PUBLIC_HOSTNAME=`echo -n ${PUBLIC_FQDN}|cut -d. -f1`
-
-
-PUBLIC_FQDN=`curl --silent http://169.254.169.254/latest/meta-data/public-hostname`
-PUBLIC_HOSTNAME=`echo ${PUBLIC_FQDN} |awk -F. '{ print $1 }'`
-DOMAIN=`echo ${PUBLIC_FQDN} |awk -F. '{$1="";OFS="." ; print $0}' | sed 's/^.//'`
-
 
 CRYPTO_DIR="/tmp/crypto"
 ENROLL_ID=$1
@@ -26,7 +17,9 @@ CA_TLS_CERTCHAIN="$5"
 MSPID=$6
 STATE_DB=$7
 VERSION=$8
-LICENSE_AGREEMENT=$9
+EIP=$9
+LICENSE_AGREEMENT="${10}"
+
 COUCHDB_VERSION=0.4.10
 DATA_DIR="/data/ibmblockchain"
 COUCHDB_USER=admin
@@ -35,6 +28,14 @@ COUCHDB_PASSWORD=`openssl rand -base64 32`
 # log settings
 MAX_SIZE=50m
 MAX_FILE=100
+
+# DNS info
+PUBLIC_FQDN=`curl --silent http://169.254.169.254/latest/meta-data/public-hostname`
+DOMAIN=`echo ${PUBLIC_FQDN} |awk -F. '{$1="";OFS="." ; print $0}' | sed 's/^.//'`
+HOSTNAME=ec2-${EIP//./-}
+PUBLIC_DNS="${HOSTNAME}.${DOMAIN}"
+
+
 
 # utility functions
 # source:  https://github.com/aws-quickstart/quickstart-linux-utilities/blob/master/quickstart-cfn-tools.source
@@ -112,7 +113,7 @@ startPeer() {
 	# generate crypto material
 	generateCrypto
 	# get the TLS certs
-	mv /tmp/crypto/peerOrganizations/${DOMAIN}/peers/${PUBLIC_FQDN}/tls ${DATA_DIR}/${ENROLL_ID}
+	mv /tmp/crypto/peerOrganizations/${DOMAIN}/peers/${PUBLIC_DNS}/tls ${DATA_DIR}/${ENROLL_ID}
 	chown -R fabric:fabric ${DATA_DIR}/${ENROLL_ID}/tls
 
 	docker run -d \

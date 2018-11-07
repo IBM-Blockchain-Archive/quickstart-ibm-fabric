@@ -347,10 +347,35 @@
                 "VolumeType": "gp2"
             }
         },
+        "PeerEIP": {
+            "Type": "AWS::EC2::EIP",
+            "Properties": {
+                "Domain": "vpc"
+            }
+        },
+        "PeerEIPAssociation": {
+            "Type": "AWS::EC2::EIPAssociation",
+            "DependsOn": [
+                "PeerEIP",
+                "IBMBlockchainPeer"
+            ],
+            "Properties": {
+                "AllocationId": {
+                    "Fn::GetAtt": [
+                        "PeerEIP",
+                        "AllocationId"
+                    ]
+                },
+                "InstanceId": {
+                    "Ref": "IBMBlockchainPeer"
+                }
+            }
+        },
         "IBMBlockchainPeer": {
             "Type": "AWS::EC2::Instance",
             "DependsOn": [
-                "PeerStorageVolume"
+                "PeerStorageVolume",
+                "PeerEIP"
             ],
             "Metadata": {
                 "AWS::CloudFormation::Init": {
@@ -508,7 +533,17 @@
                                 }
                             },
                             "tls": {
-                                "command": "./tmp/sbin/tls.sh"
+                                "command": {
+                                    "Fn::Join": [
+                                        " ",
+                                        [
+                                            "./tmp/sbin/tls.sh",
+                                            {
+                                                "Ref": "PeerEIP"
+                                            }
+                                        ]
+                                    ]
+                                }
                             }
                         }
                     },
@@ -551,6 +586,9 @@
                                             },
                                             {
                                                 "Ref": "IBMBlockchainVersion"
+                                            },
+                                            {
+                                                "Ref": "PeerEIP"
                                             },
                                             {
                                                 "Ref": "LicenseAgreement"

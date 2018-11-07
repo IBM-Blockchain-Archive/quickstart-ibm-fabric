@@ -12,8 +12,10 @@ set -x
 
 set -x
 
+EIP=$1
+
+HOSTNAME=ec2-${EIP//./-}
 FQDN=`curl --silent http://169.254.169.254/latest/meta-data/public-hostname`
-HOSTNAME=`echo $FQDN |awk -F. '{ print $1 }'`
 DOMAIN=`echo $FQDN |awk -F. '{$1="";OFS="." ; print $0}' | sed 's/^.//'`
 LOCALFQDN=`curl --silent http://169.254.169.254/latest/meta-data/local-hostname`
 
