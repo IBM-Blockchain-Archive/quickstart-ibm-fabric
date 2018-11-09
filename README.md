@@ -1,7 +1,7 @@
 # quickstart-ibm-fabric
 ## IBM Blockchain Platform for AWS
 
-This Quick Start deploys an IBM Blockchain Platform  distributed peer into the AWS Cloud.
+This Quick Start deploys an IBM Blockchain Platform for AWS distributed peer into the AWS Cloud.
 
 A blockchain is a growing list of records, or blocks, that are linked and secured by using cryptography. The blockchain can be used as a distributed ledger. Peers, a key component of blockchain networks, maintain a copy of the ledger, endorse transactions, and host smart contracts. 
 
