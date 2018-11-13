@@ -1,6 +1,6 @@
 {
 	"AWSTemplateFormatVersion": "2010-09-09",
-	"Description": "This template creates two IBM Blockchain Peers in an existing VPC infrastructure.  **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.(qs-1p1j13eke)",
+	"Description": "This template creates two IBM Blockchain Peers in an existing VPC infrastructure.  **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.(qs-1p1j13eke) Nov,13,2018",
 	"Metadata": {
 		"AWS::CloudFormation::Interface": {
 			"ParameterGroups": [
