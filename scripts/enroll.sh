@@ -35,8 +35,6 @@ sed  -e 's/\\n\\r/,/g' cachain1.pem |tr ',' '\n' > cachain2.pem
 CERT=`cat cachain2.pem`
 echo -e "$CERT" > ${FABRIC_CA_CLIENT_HOME}/cachain.pem
 
-sed  -e 's/\\r\\n/,/g' ${CA_TLS_CERTCHAIN} |tr ',' '\n' > ${FABRIC_CA_CLIENT_HOME}/cachain.pem
-
 ${BINDIR}/fabric-ca-client enroll -d \
   -H ${FABRIC_CA_CLIENT_HOME} \
   -u https://${ID}:${SECRET}@${CA_EP} \
