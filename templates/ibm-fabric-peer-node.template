@@ -44,8 +44,18 @@
                         "EnrollSecret",
                         "CAUrl",
                         "CAName",
+                        "TLSCAName",
                         "CATLSCertificateChain",
                         "MspID"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "Docker Login"
+                    },
+                    "Parameters": [
+                        "DockerID",
+                        "DockerPassword"
                     ]
                 },
                 {
@@ -81,13 +91,22 @@
                     "default": "Certificate Authority (CA) URL"
                 },
                 "CAName": {
-                    "default": "Certificate Authority (CA) Name"
+                    "default": "Enrollment Certificate Authority (CA) Name"
+                },
+                "TLSCAName": {
+                    "default": "TLS Certificate Authority (CA) Name"
                 },
                 "CATLSCertificateChain": {
                     "default": "Certificate Authority (CA) TLS Certificate Chain"
                 },
                 "MspID": {
                     "default": "Organization MSP"
+                },
+                "DockerID": {
+                    "default": "Docker ID"
+                },
+                "DockerPassword": {
+                    "default": "Password"
                 }
             }
         }
@@ -107,9 +126,9 @@
             "Description": "IBM Blockchain version to deploy.",
             "Type": "String",
             "AllowedValues": [
-                "1.2.1"
+                "1.4.2"
             ],
-            "Default": "1.2.1"
+            "Default": "1.4.2"
         },
         "CAUrl": {
             "Description": "The url for the Fabric Certificate Authority to use for enrolling the peer.",
@@ -120,7 +139,14 @@
         "CAName": {
             "Description": "The name of the Fabric Certificate Authority to use for enrolling the peer.",
             "Type": "String",
-            "AllowedPattern": ".+"
+            "AllowedPattern": ".+",
+            "Default": "ca"
+        },
+        "TLSCAName": {
+            "Description": "The name of the Fabric Certificate Authority used to obtain the TLS certificate for the peer.",
+            "Type": "String",
+            "AllowedPattern": ".+",
+            "Default": "tlsca"
         },
         "CATLSCertificateChain": {
             "Description": "PEM-encoded certificate chain which issued the TLS certificate for the Fabric Certificate Authority.",
@@ -150,6 +176,17 @@
                 "CouchDB"
             ],
             "Default": "CouchDB"
+        },
+        "DockerID": {
+            "Description": "The Docker ID used to pull images from Docker Hub.",
+            "Type": "String",
+            "AllowedPattern": ".+"
+        },
+        "DockerPassword": {
+            "Description": "The password associated with Docker ID.",
+            "Type": "String",
+            "NoEcho": true,
+            "AllowedPattern": ".+"
         },
         "KeyPairName": {
             "Description": "Name of an existing EC2 key pair within the AWS region.",
@@ -229,7 +266,7 @@
         "QSS3BucketName": {
             "AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
             "ConstraintDescription": "Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
-            "Default": "aws-quickstart",
+            "Default": "ibmblockchain",
             "Description": "S3 bucket name for the Quick Start assets. Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
             "Type": "String"
         },
@@ -383,6 +420,7 @@
                         "Install": [
                             "pkgs",
                             "docker-config",
+                            "docker-login",
                             "ibmblockchain-images",
                             "script-files",
                             "config-scripts",
@@ -420,16 +458,58 @@
                             }
                         }
                     },
+                    "docker-login": {
+                        "commands": {
+                            "dockerlogin": {
+                                "command": {
+                                    "Fn::Sub": "docker login -u ${DockerID} -p ${DockerPassword}"
+                                }
+                            },
+                            "dockerversion": {
+                                "command": "docker version"
+                            }
+                        }
+                    },
                     "ibmblockchain-images": {
                         "commands": {
                             "baseimage": {
-                                "command": "docker pull ibmblockchain/fabric-baseimage:0.4.10"
+                                "command": {
+                                    "Fn::Join": [
+                                        ":",
+                                        [
+                                            "docker pull ibmblockchain/fabric-baseimage",
+                                            {
+                                                "Ref": "IBMBlockchainVersion"
+                                            }
+                                        ]
+                                    ]
+                                }
                             },
                             "baseos": {
-                                "command": "docker pull ibmblockchain/fabric-baseos:0.4.10"
+                                "command": {
+                                    "Fn::Join": [
+                                        ":",
+                                        [
+                                            "docker pull ibmblockchain/fabric-baseos",
+                                            {
+                                                "Ref": "IBMBlockchainVersion"
+                                            }
+                                        ]
+                                    ]
+                                }
                             },
                             "couchdb": {
-                                "command": "docker pull ibmblockchain/fabric-couchdb:0.4.10"
+                                "command": {
+                                    "Fn::Join": [
+                                        ":",
+                                        [
+                                            "docker pull ibmblockchain/fabric-couchdb",
+                                            {
+                                                "Ref": "IBMBlockchainVersion"
+                                            }
+                                        ]
+                                    ]
+                                }
                             },
                             "peer": {
                                 "command": {
@@ -576,6 +656,9 @@
                                             },
                                             {
                                                 "Ref": "CAName"
+                                            },
+                                            {
+                                                "Ref": "TLSCAName"
                                             },
                                             "/tmp/cachain.pem",
                                             {

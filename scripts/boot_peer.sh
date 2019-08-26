@@ -13,14 +13,15 @@ ENROLL_ID=$1
 ENROLL_SECRET=$2
 CA_URL=$3
 CA_NAME=$4
-CA_TLS_CERTCHAIN="$5"
-MSPID=$6
-STATE_DB=$7
-VERSION=$8
-EIP=$9
-LICENSE_AGREEMENT="${10}"
+TLSCA_NAME=$5
+CA_TLS_CERTCHAIN="$6"
+MSPID=$7
+STATE_DB=$8
+VERSION=$9
+EIP=${10}
+LICENSE_AGREEMENT="${11}"
 
-COUCHDB_VERSION=0.4.10
+COUCHDB_VERSION=${VERSION}
 DATA_DIR="/data/ibmblockchain"
 COUCHDB_USER=admin
 COUCHDB_PASSWORD=`openssl rand -base64 32`
@@ -70,6 +71,7 @@ startCouch() {
 	--log-opt labels=${ENROLL_ID}-couchdb \
 	-e COUCHDB_USER=${COUCHDB_USER} \
 	-e COUCHDB_PASSWORD=${COUCHDB_PASSWORD} \
+	-e LICENSE=accept \
 	ibmblockchain/fabric-couchdb:${COUCHDB_VERSION}
 
 	if [ $? -ne 0 ]; then
@@ -87,7 +89,7 @@ dockerNetwork() {
 
 # enroll the peer
 enrollPeer() {
-	/opt/ibmblockchain/bin/enroll.sh ${ENROLL_ID} ${ENROLL_SECRET} ${CA_URL} ${CA_NAME} ${CA_TLS_CERTCHAIN}
+	/opt/ibmblockchain/bin/enroll.sh ${ENROLL_ID} ${ENROLL_SECRET} ${CA_URL} ${CA_NAME} ${TLSCA_NAME} ${CA_TLS_CERTCHAIN}
 	if [ $? -ne 0 ]; then
 		qs_err "failed to enroll peer"
 	fi
@@ -113,8 +115,8 @@ startPeer() {
 	# generate crypto material
 	generateCrypto
 	# get the TLS certs
-	mv /tmp/crypto/peerOrganizations/${DOMAIN}/peers/${PUBLIC_DNS}/tls ${DATA_DIR}/${ENROLL_ID}
-	chown -R fabric:fabric ${DATA_DIR}/${ENROLL_ID}/tls
+	#mv /tmp/crypto/peerOrganizations/${DOMAIN}/peers/${PUBLIC_DNS}/tls ${DATA_DIR}/${ENROLL_ID}
+	#chown -R fabric:fabric ${DATA_DIR}/${ENROLL_ID}/tls
 
 	docker run -d \
 	--name peer \
@@ -136,7 +138,7 @@ startPeer() {
 	-e CORE_PEER_LOCALMSPID=${MSPID} \
 	-e CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=ibmblockchain \
 	-e CORE_CHAINCODE_BUILDER=ibmblockchain/fabric-ccenv:${VERSION} \
-	-e CORE_CHAINCODE_GOLANG_RUNTIME=ibmblockchain/fabric-baseos:0.4.10 \
+	-e CORE_CHAINCODE_GOLANG_RUNTIME=ibmblockchain/fabric-baseos::${VERSION} \
 	-e CORE_LEDGER_STATE_STATEDATABASE=${STATE_DB} \
 	-e CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb:5984 \
 	-e CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_USER} \
@@ -149,6 +151,7 @@ startPeer() {
 	-e USERNAME=${username} \
 	-e USER_ID=${user_id} \
 	-e GROUP_ID=${group_id} \
+	-e LICENSE=accept \
 	ibmblockchain/fabric-peer:${VERSION} \
 	peer node start
 

@@ -48,10 +48,20 @@
 						"Peer2EnrollSecret",
 						"CAUrl",
 						"CAName",
+						"TLSCAName",
 						"CATLSCertificateChain",
 						"MspID"
 					]
 				},
+				{
+                    "Label": {
+                        "default": "Docker Login"
+                    },
+                    "Parameters": [
+                        "DockerID",
+                        "DockerPassword"
+                    ]
+                },
                 {
                     "Label": {
                         "default": "AWS Quick Start Configuration"
@@ -115,13 +125,22 @@
                     "default": "Certificate Authority (CA) URL"
                 },
                 "CAName": {
-                    "default": "Certificate Authority (CA) Name"
+                    "default": "Enrollment Certificate Authority (CA) Name"
+				},
+				"TLSCAName": {
+                    "default": "TLS Certificate Authority (CA) Name"
                 },
                 "CATLSCertificateChain": {
                     "default": "Certificate Authority (CA) TLS Certificate Chain"
                 },
                 "MspID": {
                     "default": "Organization MSP"
+				},
+				"DockerID": {
+                    "default": "Docker ID"
+                },
+                "DockerPassword": {
+                    "default": "Password"
                 },
                 "QSS3BucketName": {
                     "default": "Quick Start S3 bucket name"
@@ -230,9 +249,9 @@
 			"Description": "IBM Blockchain version to deploy.",
 			"Type": "String",
 			"AllowedValues": [
-				"1.2.1"
+				"1.4.2"
 			],
-			"Default": "1.2.1"
+			"Default": "1.4.2"
 		},
 		"CAUrl": {
 			"Description": "The url for the Fabric Certificate Authority to use for enrolling the peer.",
@@ -241,10 +260,17 @@
 			"ConstraintDescription": "This URL must be a valid https URL"
 		},
 		"CAName": {
-			"Description": "The name of the Fabric Certificate Authority to use for enrolling the peer.",
-			"Type": "String",
-			"AllowedPattern": ".+"
-		},
+            "Description": "The name of the Fabric Certificate Authority to use for enrolling the peer.",
+            "Type": "String",
+            "AllowedPattern": ".+",
+            "Default": "ca"
+        },
+        "TLSCAName": {
+            "Description": "The name of the Fabric Certificate Authority used to obtain the TLS certificate for the peer.",
+            "Type": "String",
+            "AllowedPattern": ".+",
+            "Default": "tlsca"
+        },
 		"CATLSCertificateChain": {
 			"Description": "PEM-encoded certificate chain which issued the TLS certificate for the Fabric Certificate Authority.",
 			"Type": "String"
@@ -285,10 +311,21 @@
 			],
 			"Default": "CouchDB"
 		},
+		"DockerID": {
+            "Description": "The Docker ID used to pull images from Docker Hub.",
+            "Type": "String",
+            "AllowedPattern": ".+"
+        },
+        "DockerPassword": {
+            "Description": "The password associated with Docker ID.",
+            "Type": "String",
+            "NoEcho": true,
+            "AllowedPattern": ".+"
+        },
 		"QSS3BucketName": {
 			"AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
 			"ConstraintDescription": "Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
-			"Default": "aws-quickstart",
+			"Default": "ibmblockchain",
 			"Description": "S3 bucket name for the Quick Start assets. Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
 			"Type": "String"
 		},
@@ -344,6 +381,9 @@
 					"CAName": {
 						"Ref": "CAName"
 					},
+					"TLSCAName": {
+						"Ref": "TLSCAName"
+					},
 					"CATLSCertificateChain": {
 						"Ref": "CATLSCertificateChain"
 					},
@@ -358,7 +398,13 @@
 					},
 					"StateDatabase": {
 						"Ref": "StateDatabase"
-					}
+					},
+                    "DockerID": {
+                        "Ref": "DockerID"
+                    },
+                    "DockerPassword": {
+                        "Ref": "DockerPassword"
+                    }
 				}
 			}
 		},
@@ -405,6 +451,9 @@
 					"CAName": {
 						"Ref": "CAName"
 					},
+					"TLSCAName": {
+						"Ref": "TLSCAName"
+					},
 					"CATLSCertificateChain": {
 						"Ref": "CATLSCertificateChain"
 					},
@@ -419,7 +468,13 @@
 					},
 					"StateDatabase": {
 						"Ref": "StateDatabase"
-					}
+					},
+                    "DockerID": {
+                        "Ref": "DockerID"
+                    },
+                    "DockerPassword": {
+                        "Ref": "DockerPassword"
+                    }
 				}
 			}
 		}
